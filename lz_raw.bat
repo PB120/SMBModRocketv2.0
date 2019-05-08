@@ -1,0 +1,1 @@
+%1\ws2lzfrontend.exe -c "%2\%3\%4" -o "%2\%3\output.lz.raw"

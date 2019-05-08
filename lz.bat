@@ -1,0 +1,1 @@
+%1\SMB_LZ_Tool.exe %2\%3\output.lz.raw
