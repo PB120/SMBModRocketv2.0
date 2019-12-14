@@ -3,6 +3,7 @@
 import os
 import sys
 import glob
+#import pdb
 tool_path = sys.path[0]
 filename = os.path.join(tool_path, "config.txt")
 file_lst = ["ws2lzfrontend.exe", "SMB_LZ_Tool.exe", "GxModelViewer.exe", "GxModelViewer.exe", "gcr.exe"]
@@ -12,7 +13,7 @@ def grab_dirs(config_file=filename):
     """
     Grabs the directories given in config file
 
-    :param config_file: Config filename (str)
+    :param config_file: Automation tool config file name and path (str)
     :return: Dictionary (keys as generic names describing directories: values as the directories)
     """
 
@@ -45,6 +46,7 @@ def default_config(f_name):
         f_out.write("Directory descriptions\n"
                     "levels: Directory of your custom SMB2 level folders\n"
                     "ws2lzfrontend: Directory of ws2lzfrontend.exe\n"
+                    "ws2ify: Directory of ws2ify run.py file\n"
                     "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
                     "GXModelViewer: Directory of GxModelViewer.exe\n"
                     "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
@@ -54,6 +56,7 @@ def default_config(f_name):
                     "YOUR DIRECTORIES\n"
                     "levels=\"Enter your directory here\"\n"
                     "ws2lzfrontend=\"Enter your directory here\"\n"
+                    "ws2ify=\Enter your directory here\"\n"
                     "SMB_LZ_Tool=\"Enter your directory here\"\n"
                     "GXModelViewer=\"Enter your directory here\"\n"
                     "GxModelViewerNoGUI=\"Enter your directory here\"\n"
@@ -109,7 +112,7 @@ def config_input(m_files):
     while True:
         new_dict = {}
         for key, value in m_files.items():
-
+            #pdb.set_trace()
             while True:
                 if key == "levels":
                     new_dir = input("Please input the directory "
@@ -126,11 +129,23 @@ def config_input(m_files):
                             print("Incorrect directory for {}! Try again.".format(key))
                         else:
                             break
+
+                elif key == "ws2ify":
+                    new_dir = input("Please input the directory "
+                                    "that contains the run.py file for ws2ify")
+                    if not os.path.isfile(os.path.join(new_dir, "run.py")):
+                        print("Directory does not contain run.py. Try again.")
+                        continue
+
                 else:
                     new_dir = input("Please input the {} directory: ".format(key))
 
+                # Checking for invalid file paths or directories.
+
                 if not os.path.isdir(new_dir):
                     print("\"{}\" is not a valid {} directory! Try again.".format(new_dir, key))
+
+                # If valid path, make sure the path is the one that has the necessary file
 
                 elif value != "" and not os.path.isfile(os.path.join(new_dir, value)):
                     print("The file {} does not exist in {}! Try again.".format(value, new_dir))
@@ -171,6 +186,7 @@ def write_config():
         f2_out.write("Directory descriptions\n"
                      "levels: Directory of your custom SMB2 level folders\n"
                      "ws2lzfrontend: Directory of ws2lzfrontend.exe\n"
+                     "ws2ify: Directory of run.py file in ws2ify folder\n"
                      "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
                      "GXModelViewer: Directory of GxModelViewer.exe\n"
                      "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
@@ -196,12 +212,13 @@ if not dirs:
 
 # If the config's directories are default values ("Enter your directory here")
 elif "Enter your directory here" in dirs.values():
+    default_config(filename)
     dirs = grab_dirs()
     f_dict = map_files(file_lst, dirs)
     config_dict = config_input(f_dict)
     write_config()
 
-# If the config does exist, but >=1 directories are invalid
+# If the config does exist, but >=1 directories were edited outside of the program and are incorrect
 else:
     incorrect_dir = False
     for dirs_key, dirs_value in dirs.items():
@@ -237,7 +254,8 @@ else:
                 elif overwrite_input.lower()[0] == "n":
                     sys.exit(0)
                 else:
-                    print(dirs)
+                    default_config(filename)
+                    grab_dirs()
                     f_dict = map_files(file_lst, dirs)
                     config_dict = config_input(f_dict)
                     write_config()
