@@ -7,6 +7,85 @@ import xml.etree.ElementTree as et
 import config_writer
 
 
+def get_file(path, extension):
+    """
+    Grab filename of a file inside a specific directory that has a specific file extension
+
+    :param path: file path
+    :param extension: file extension
+    :return: File name if the number of files with specified extension >= 1.
+    Else, returns None and program shuts down.
+    """
+    import pdb
+    pdb.set_trace()
+    ext_lst = []
+    for f_name in os.listdir(path):
+        if f_name.endswith(extension):
+            ext_lst.append(f_name)
+
+    if len(ext_lst) == 0:
+        print("No {} files exist in {}. Quitting program...".format(extension, path))
+        sys.exit(1)
+
+    elif len(ext_lst) == 1:
+        return ext_lst[0]
+
+    else:
+        while True:
+            files = [file for file in ext_lst]
+            file_choice = input("More than one {} file exists in {}.\n"
+                                "File available: {}\n"
+                                "Please input the file name that you want.".format(extension, path, files))
+            if file_choice in ext_lst:
+                return file_choice
+            else:
+                print("File does not exist! Please try again.")
+
+
+def txt_to_xml(ws2ify_path):
+    """
+    Runs ws2ify to convert txt to xml config
+
+    :param ws2ify_path: ws2ify run.py file path
+
+    :return: None
+    """
+
+    print(sys.argv[0])
+    while True:
+        txt = input("Config file name and path: ")
+        if not os.path.isfile(os.path.expanduser(txt)):
+            print("File or path not found. Try again.")
+        else:
+            break
+
+    while True:
+        obj = input("Obj file name and path: ")
+        if not os.path.isfile(os.path.expanduser(obj)):
+            print("File or path not found. Try again.")
+        else:
+            break
+    xml_name = "{}.xml".format(input("Output xml name: "))
+
+    while True:
+        keyframe_easing = input("Keyframe easing (linear or eased): ")
+        keyframe_easing = keyframe_easing.upper()
+        print(keyframe_easing)
+        if keyframe_easing != "LINEAR" and keyframe_easing != "EASED":
+            print("Invalid easing. Try again.")
+        else:
+            break
+
+    ws2ify_path = os.path.expanduser(ws2ify_path)
+    os.chdir(ws2ify_path)
+    print(os.path.isfile("{}/run.py".format(ws2ify_path)))
+    subprocess.call(["python", "run.py", txt, obj, xml_name, keyframe_easing])
+    os.chdir(config_writer.tool_path)
+
+
+txt_to_xml("F:\SMBCustomLevelStuff\ws2ify-master")
+
+
 def get_obj(xml_file):
     """
     Grabs obj filename found in xml file
@@ -78,39 +157,6 @@ def stage_name(stages_dir):
             break
 
     return stg_nm
-
-
-def get_file(path, extension):
-    """
-    Grab filename of a file inside a specific directory that has a specific file extension
-
-    :param path: file path
-    :param extension: file extension
-    :return: File name if the number of files with specified extension >= 1.
-    Else, returns None and program shuts down.
-    """
-    ext_lst = []
-    for f_name in os.listdir(path):
-        if f_name.endswith(extension):
-            ext_lst.append(f_name)
-
-    if len(ext_lst) == 0:
-        print("No {} files exist in {}. Quitting program...".format(extension, path))
-        sys.exit(1)
-
-    elif len(ext_lst) == 1:
-        return ext_lst[0]
-
-    else:
-        while True:
-            files = [file for file in ext_lst]
-            file_choice = input("More than one {} file exists in {}.\n"
-                                "File available: {}\n"
-                                "Please input the file name that you want.".format(extension, path, files))
-            if file_choice in ext_lst:
-                return file_choice
-            else:
-                print("File does not exist! Please try again.")
 
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
