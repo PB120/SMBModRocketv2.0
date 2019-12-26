@@ -5,6 +5,7 @@ import os
 from shutil import copyfile
 import xml.etree.ElementTree as et
 import config_writer
+import pdb
 
 
 def get_file(path, extension):
@@ -23,8 +24,7 @@ def get_file(path, extension):
             ext_lst.append(f_name)
 
     if len(ext_lst) == 0:
-        print("No {} files exist in {}. Quitting program...".format(extension, path))
-        sys.exit(1)
+        return ext_lst
 
     elif len(ext_lst) == 1:
         return ext_lst[0]
@@ -32,9 +32,9 @@ def get_file(path, extension):
     else:
         while True:
             files = [file for file in ext_lst]
-            file_choice = input("More than one {} file exists in {}.\n"
-                                "File available: {}\n"
-                                "Please input the file name that you want.".format(extension, path, files))
+            file_choice = input("\nMore than one {} file exists in {}.\n"
+                                "Files available: {}\n"
+                                "Please input the file name that you want. \n".format(extension, path, files))
             if file_choice in ext_lst:
                 return file_choice
             else:
@@ -124,15 +124,8 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
 
     :return: None
     """
-
-    """print(sys.argv)
-    os.chdir(os.path.expanduser(ws2ify_path))
-
-    print("\nOpening cmd in ws2ify directory...\n")
-
-    subprocess.call("cmd")"""
     import pdb
-    #pdb.set_trace()
+    pdb.set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
 
@@ -173,10 +166,10 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
     os.chdir(config_writer.tool_path)
 
 
-txt_to_xml("F:\SMBCustomLevelStuff\ws2ify-master", "F:\SMBCustomLevelStuff\Levels", "Plane_Simple")
+#txt_to_xml("F:\SMBCustomLevelStuff\ws2ify-master", "F:\SMBCustomLevelStuff\Levels", "Plane_Simple")
 
 
-def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
+def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir):
     """
     Run lz_both.bat file with the following command line arguments (in order):
         (1) ws2lzfrontend.exe directory, (2) stages directory,
@@ -184,17 +177,43 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
 
     :param s_name: Stage name
     :param s_number: Stage number
+    :param ws2ify_path: ws2ify run.py file path
     :param ws2_fe_dir: Directory containing ws2lzfrontend.exe file
     :param lz_tool_dir: Directory containing SMB_LZ_Tool.exe file
     :param stages_dir: Directory of stage folders
     :return: None
     """
+    pdb.set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
+    txt_file = get_file(stage_dir, ".txt")
+
+    # Option to run ws2ify if config TXT file exists
+    if txt_file:
+        while True:
+            use_ws2ify = input("TXT file exists. Use ws2ify? (Y/N) ")
+            use_ws2ify = use_ws2ify.upper()[0]
+
+            if use_ws2ify != "Y" and use_ws2ify != "N":
+                print("\nInvalid command.\n")
+
+            elif use_ws2ify == "N":
+                break
+
+            else:
+                txt_to_xml(ws2ify_path, stages_dir, s_name)
+
+                break
+
     xml_file = get_file(stage_dir, ".xml")
+
+    if not xml_file:
+        print("\nNo XML exists. Quitting program...")
+        sys.exit(1)
+
     obj_file = get_obj(os.path.join(stage_dir, xml_file))
 
-    # Check if obj filename pulled from xml file exists in stage_dir
+    # Check if obj filename pulled from xml file exists in stage folder
     if not os.path.isfile(os.path.join(stage_dir, obj_file)):
         print("{} does not exist in {}. Quitting program...".format(obj_file, stage_dir))
         sys.exit(1)
@@ -459,11 +478,13 @@ if __name__ == '__main__':
         sys.exit(1)
 
     cmd = select_cmd()
-
     if cmd == 'a':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+
+        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
         open_gcr(dirs["gcr"])
