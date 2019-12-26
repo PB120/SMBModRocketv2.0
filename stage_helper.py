@@ -16,8 +16,7 @@ def get_file(path, extension):
     :return: File name if the number of files with specified extension >= 1.
     Else, returns None and program shuts down.
     """
-    import pdb
-    pdb.set_trace()
+
     ext_lst = []
     for f_name in os.listdir(path):
         if f_name.endswith(extension):
@@ -40,50 +39,6 @@ def get_file(path, extension):
                 return file_choice
             else:
                 print("File does not exist! Please try again.")
-
-
-def txt_to_xml(ws2ify_path):
-    """
-    Runs ws2ify to convert txt to xml config
-
-    :param ws2ify_path: ws2ify run.py file path
-
-    :return: None
-    """
-
-    print(sys.argv[0])
-    while True:
-        txt = input("Config file name and path: ")
-        if not os.path.isfile(os.path.expanduser(txt)):
-            print("File or path not found. Try again.")
-        else:
-            break
-
-    while True:
-        obj = input("Obj file name and path: ")
-        if not os.path.isfile(os.path.expanduser(obj)):
-            print("File or path not found. Try again.")
-        else:
-            break
-    xml_name = "{}.xml".format(input("Output xml name: "))
-
-    while True:
-        keyframe_easing = input("Keyframe easing (linear or eased): ")
-        keyframe_easing = keyframe_easing.upper()
-        print(keyframe_easing)
-        if keyframe_easing != "LINEAR" and keyframe_easing != "EASED":
-            print("Invalid easing. Try again.")
-        else:
-            break
-
-    ws2ify_path = os.path.expanduser(ws2ify_path)
-    os.chdir(ws2ify_path)
-    print(os.path.isfile("{}/run.py".format(ws2ify_path)))
-    subprocess.call(["python", "run.py", txt, obj, xml_name, keyframe_easing])
-    os.chdir(config_writer.tool_path)
-
-
-txt_to_xml("F:\SMBCustomLevelStuff\ws2ify-master")
 
 
 def get_obj(xml_file):
@@ -157,6 +112,68 @@ def stage_name(stages_dir):
             break
 
     return stg_nm
+
+
+def txt_to_xml(ws2ify_path, stages_dir, s_name):
+    """
+    Runs ws2ify to convert txt to xml config
+
+    :param ws2ify_path: ws2ify run.py file path
+    :param stages_dir: Directory of stage folders
+    :param s_name: Stage name
+
+    :return: None
+    """
+
+    """print(sys.argv)
+    os.chdir(os.path.expanduser(ws2ify_path))
+
+    print("\nOpening cmd in ws2ify directory...\n")
+
+    subprocess.call("cmd")"""
+    import pdb
+    #pdb.set_trace()
+    stages_dir = os.path.expanduser(stages_dir)
+    stage_dir = os.path.join(stages_dir, s_name)
+
+    os.chdir(stage_dir)
+    keyframe_easing_dict = {"1": "LINEAR", "2": "EASED"}
+    while True:
+        txt = input("Input txt filename: ")
+        txt_path = os.path.join(stage_dir, txt)
+        if not os.path.isfile(txt_path):
+            print("\nFile not found.\n")
+        else:
+            break
+
+    while True:
+        obj = input("Input obj filename: ")
+        obj_path = os.path.join(stage_dir, obj)
+        if not os.path.isfile(obj_path):
+            print("\nFile not found.\n")
+        else:
+            break
+
+    while True:
+        keyframe_easing = input("Keyframe easing = linear(1) or eased(2)? Enter 1 or 2: ")
+        print(keyframe_easing)
+        if keyframe_easing != "1" and keyframe_easing != "2":
+            print("\nInvalid easing.\n")
+        else:
+            keyframe_easing = keyframe_easing_dict[keyframe_easing]
+            break
+
+    xml = "{}.xml".format(input("Output xml filename: "))
+    xml_path = os.path.join(stage_dir, xml)
+
+    ws2ify_path = os.path.expanduser(ws2ify_path)
+    os.chdir(ws2ify_path)
+    print(os.path.isfile("{}/run.py".format(ws2ify_path)))
+    subprocess.call(["python", "run.py", txt_path, obj_path, xml_path, keyframe_easing])
+    os.chdir(config_writer.tool_path)
+
+
+txt_to_xml("F:\SMBCustomLevelStuff\ws2ify-master", "F:\SMBCustomLevelStuff\Levels", "Plane_Simple")
 
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
