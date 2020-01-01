@@ -15,7 +15,7 @@ def get_file(path, extension):
     :param path: file path
     :param extension: file extension
     :return: File name if the number of files with specified extension >= 1.
-    Else, returns None and program shuts down.
+    Else, returns None.
     """
 
     ext_lst = []
@@ -38,7 +38,7 @@ def get_file(path, extension):
             if file_choice in ext_lst:
                 return file_choice
             else:
-                print("File does not exist! Please try again.")
+                print("File does not exist.")
 
 
 def get_obj(xml_file):
@@ -126,6 +126,18 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
     """
     import pdb
     #pdb.set_trace()
+
+    while True:
+        use_ws2ify = input("Use ws2ify? (Y/N) ")
+        use_ws2ify = use_ws2ify.upper()[0]
+
+        if use_ws2ify != "Y" and use_ws2ify != "N":
+            print("\nInvalid input.\n")
+        elif use_ws2ify == "N":
+            return
+        else:
+            break
+
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
 
