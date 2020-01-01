@@ -125,7 +125,7 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
     :return: None
     """
     import pdb
-    pdb.set_trace()
+    #pdb.set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
 
@@ -151,7 +151,7 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
         keyframe_easing = input("Keyframe easing = linear(1) or eased(2)? Enter 1 or 2: ")
         print(keyframe_easing)
         if keyframe_easing != "1" and keyframe_easing != "2":
-            print("\nInvalid easing.\n")
+            print("\nInvalid input.\n")
         else:
             keyframe_easing = keyframe_easing_dict[keyframe_easing]
             break
@@ -169,7 +169,7 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
 #txt_to_xml("F:\SMBCustomLevelStuff\ws2ify-master", "F:\SMBCustomLevelStuff\Levels", "Plane_Simple")
 
 
-def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir):
+def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
     """
     Run lz_both.bat file with the following command line arguments (in order):
         (1) ws2lzfrontend.exe directory, (2) stages directory,
@@ -177,34 +177,14 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_to
 
     :param s_name: Stage name
     :param s_number: Stage number
-    :param ws2ify_path: ws2ify run.py file path
     :param ws2_fe_dir: Directory containing ws2lzfrontend.exe file
     :param lz_tool_dir: Directory containing SMB_LZ_Tool.exe file
     :param stages_dir: Directory of stage folders
     :return: None
     """
-    pdb.set_trace()
+    #pdb.set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
-    txt_file = get_file(stage_dir, ".txt")
-
-    # Option to run ws2ify if config TXT file exists
-    if txt_file:
-        while True:
-            use_ws2ify = input("TXT file exists. Use ws2ify? (Y/N) ")
-            use_ws2ify = use_ws2ify.upper()[0]
-
-            if use_ws2ify != "Y" and use_ws2ify != "N":
-                print("\nInvalid command.\n")
-
-            elif use_ws2ify == "N":
-                break
-
-            else:
-                txt_to_xml(ws2ify_path, stages_dir, s_name)
-
-                break
-
     xml_file = get_file(stage_dir, ".xml")
 
     if not xml_file:
@@ -482,8 +462,7 @@ if __name__ == '__main__':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
 
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+        stage_def_to_lz(stage_name, stage_number, dirs["levels"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
 
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
