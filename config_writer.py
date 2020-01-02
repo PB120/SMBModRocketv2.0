@@ -3,7 +3,6 @@
 import os
 import sys
 import glob
-#import pdb
 tool_path = sys.path[0]
 filename = os.path.join(tool_path, "config.txt")
 file_lst = ["ws2lzfrontend.exe", "SMB_LZ_Tool.exe", "GxModelViewer.exe", "GxModelViewer.exe", "gcr.exe"]
@@ -112,7 +111,7 @@ def config_input(m_files):
     while True:
         new_dict = {}
         for key, value in m_files.items():
-            #pdb.set_trace()
+
             while True:
                 if key == "levels":
                     new_dir = input("Please input the directory "
