@@ -39,7 +39,7 @@ def get_file(path, extension, override=False):
                 files = [file for file in ext_lst]
                 file_choice = input("\nMore than one {} file exists in {}.\n"
                                     "Files available: {}\n"
-                                    "Please input the file name that you want. \n".format(extension, path, files))
+                                    "Please input the file name that you want. ".format(extension, path, files))
                 if file_choice in ext_lst:
                     return file_choice
                 else:
@@ -112,7 +112,7 @@ def stage_name(stages_dir):
     while True:
         stg_nm = input("\nEnter stage name: ")
         if stg_nm not in stage_lst:
-            print("Stage name not available! Try again.")
+            print("\nStage name not available! Try again.")
         else:
             break
 
@@ -137,12 +137,12 @@ def txt_to_xml(ws2ify_path, stage_dir):
     if txt_file and obj_file:
 
         while True:
-            use_ws2ify = input("Use ws2ify? (Y/N) ")
+            use_ws2ify = input("\nUse ws2ify? (Y/N) ")
             if use_ws2ify:
                 use_ws2ify = use_ws2ify.upper()[0]
 
             if use_ws2ify != "Y" and use_ws2ify != "N":
-                print("\nInvalid input.\n")
+                print("\nInvalid input.")
             elif use_ws2ify == "N":
                 return None
             else:
@@ -154,19 +154,18 @@ def txt_to_xml(ws2ify_path, stage_dir):
         obj_path = os.path.join(stage_dir, obj_file)
 
         while True:
-            keyframe_easing = input("\nKeyframe easing = linear(1) or eased(2)?: \n")
+            keyframe_easing = input("\nKeyframe easing = linear(1) or eased(2)?: ")
             if keyframe_easing != "1" and keyframe_easing != "2":
-                print("\nInvalid input.\n")
+                print("\nInvalid input.")
             else:
                 keyframe_easing = keyframe_easing_dict[keyframe_easing]
                 break
 
-        xml = "{}.xml".format(input("Output xml filename: "))
+        xml = "{}.xml".format(input("\nOutput xml filename: "))
         xml_path = os.path.join(stage_dir, xml)
 
         ws2ify_path = os.path.expanduser(ws2ify_path)
         os.chdir(ws2ify_path)
-        print(os.path.isfile("{}/run.py".format(ws2ify_path)))
         subprocess.call(["python", "run.py", txt_path, obj_path, xml_path, keyframe_easing])
         os.chdir(config_writer.tool_path)
 
@@ -457,10 +456,10 @@ def select_cmd():
     while True:
         cmd_input = input("\nEnter command: ")
         if cmd_input == "":
-            print("Invalid command! Try again.")
+            print("\nInvalid command! Try again.")
 
         elif cmd_input.lower() not in help_dict.keys():
-            print("Invalid command! Try again.")
+            print("\nInvalid command! Try again.")
 
         else:
             return cmd_input.lower()
@@ -475,7 +474,7 @@ if __name__ == '__main__':
     incorrect_dir = False
     for key, value in dirs.items():
         if not os.path.isdir(value):
-            print("\"{}\" is not a valid directory for {}!".format(value, key))
+            print("\n\"{}\" is not a valid directory for {}".format(value, key))
             incorrect_dir = True
     if incorrect_dir:
         print("Quitting program...")
