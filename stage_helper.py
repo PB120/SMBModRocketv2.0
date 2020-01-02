@@ -5,15 +5,16 @@ import os
 from shutil import copyfile
 import xml.etree.ElementTree as et
 import config_writer
-import pdb
+# import pdb
 
 
-def get_file(path, extension):
+def get_file(path, extension, override=False):
     """
     Grab filename of a file inside a specific directory that has a specific file extension
 
     :param path: file path
     :param extension: file extension
+    :param override: bool
     :return: File name if the number of files with specified extension >= 1.
     Else, returns None.
     """
@@ -30,15 +31,20 @@ def get_file(path, extension):
         return ext_lst[0]
 
     else:
-        while True:
-            files = [file for file in ext_lst]
-            file_choice = input("\nMore than one {} file exists in {}.\n"
-                                "Files available: {}\n"
-                                "Please input the file name that you want. \n".format(extension, path, files))
-            if file_choice in ext_lst:
-                return file_choice
-            else:
-                print("File does not exist.")
+
+        if override:
+            return True
+
+        else:
+            while True:
+                files = [file for file in ext_lst]
+                file_choice = input("\nMore than one {} file exists in {}.\n"
+                                    "Files available: {}\n"
+                                    "Please input the file name that you want. \n".format(extension, path, files))
+                if file_choice in ext_lst:
+                    return file_choice
+                else:
+                    print("File does not exist.")
 
 
 def get_obj(xml_file):
@@ -122,63 +128,52 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
     :param stages_dir: Directory of stage folders
     :param s_name: Stage name
 
-    :return: None
+    :return: If ws2ify is used, returns xml file name. Else, returns None.
     """
-    import pdb
-    #pdb.set_trace()
-
-    while True:
-        use_ws2ify = input("Use ws2ify? (Y/N) ")
-        use_ws2ify = use_ws2ify.upper()[0]
-
-        if use_ws2ify != "Y" and use_ws2ify != "N":
-            print("\nInvalid input.\n")
-        elif use_ws2ify == "N":
-            return
-        else:
-            break
 
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
-
-    os.chdir(stage_dir)
+    txt_file = get_file(stage_dir, ".txt", override=True)
+    obj_file = get_file(stage_dir, ".obj", override=True)
     keyframe_easing_dict = {"1": "LINEAR", "2": "EASED"}
-    while True:
-        txt = input("Input txt filename: ")
-        txt_path = os.path.join(stage_dir, txt)
-        if not os.path.isfile(txt_path):
-            print("\nFile not found.\n")
-        else:
-            break
 
-    while True:
-        obj = input("Input obj filename: ")
-        obj_path = os.path.join(stage_dir, obj)
-        if not os.path.isfile(obj_path):
-            print("\nFile not found.\n")
-        else:
-            break
+    # If both an obj and txt file exist, user can use ws2ify
+    if txt_file and obj_file:
 
-    while True:
-        keyframe_easing = input("Keyframe easing = linear(1) or eased(2)? Enter 1 or 2: ")
-        print(keyframe_easing)
-        if keyframe_easing != "1" and keyframe_easing != "2":
-            print("\nInvalid input.\n")
-        else:
-            keyframe_easing = keyframe_easing_dict[keyframe_easing]
-            break
+        while True:
+            use_ws2ify = input("Use ws2ify? (Y/N) ")
+            use_ws2ify = use_ws2ify.upper()[0]
 
-    xml = "{}.xml".format(input("Output xml filename: "))
-    xml_path = os.path.join(stage_dir, xml)
+            if use_ws2ify != "Y" and use_ws2ify != "N":
+                print("\nInvalid input.\n")
+            elif use_ws2ify == "N":
+                return None
+            else:
+                break
 
-    ws2ify_path = os.path.expanduser(ws2ify_path)
-    os.chdir(ws2ify_path)
-    print(os.path.isfile("{}/run.py".format(ws2ify_path)))
-    subprocess.call(["python", "run.py", txt_path, obj_path, xml_path, keyframe_easing])
-    os.chdir(config_writer.tool_path)
+        txt_file = get_file(stage_dir, ".txt", override=False)
+        obj_file = get_file(stage_dir, ".obj", override=False)
+        txt_path = os.path.join(stage_dir, txt_file)
+        obj_path = os.path.join(stage_dir, obj_file)
 
+        while True:
+            keyframe_easing = input("\nKeyframe easing = linear(1) or eased(2)?: \n")
+            if keyframe_easing != "1" and keyframe_easing != "2":
+                print("\nInvalid input.\n")
+            else:
+                keyframe_easing = keyframe_easing_dict[keyframe_easing]
+                break
 
-#txt_to_xml("F:\SMBCustomLevelStuff\ws2ify-master", "F:\SMBCustomLevelStuff\Levels", "Plane_Simple")
+        xml = "{}.xml".format(input("Output xml filename: "))
+        xml_path = os.path.join(stage_dir, xml)
+
+        ws2ify_path = os.path.expanduser(ws2ify_path)
+        os.chdir(ws2ify_path)
+        print(os.path.isfile("{}/run.py".format(ws2ify_path)))
+        subprocess.call(["python", "run.py", txt_path, obj_path, xml_path, keyframe_easing])
+        os.chdir(config_writer.tool_path)
+
+        return xml
 
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
@@ -194,7 +189,7 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
     :param stages_dir: Directory of stage folders
     :return: None
     """
-    #pdb.set_trace()
+
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     xml_file = get_file(stage_dir, ".xml")
@@ -474,8 +469,8 @@ if __name__ == '__main__':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
 
+        txt_to_xml(dirs["ws2ify"], dirs["levels"], stage_name)
         stage_def_to_lz(stage_name, stage_number, dirs["levels"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
-
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
         open_gcr(dirs["gcr"])
