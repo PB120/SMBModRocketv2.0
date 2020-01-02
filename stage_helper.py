@@ -5,7 +5,6 @@ import os
 from shutil import copyfile
 import xml.etree.ElementTree as et
 import config_writer
-# import pdb
 
 
 def get_file(path, extension, override=False):
@@ -47,14 +46,14 @@ def get_file(path, extension, override=False):
                     print("File does not exist.")
 
 
-def get_obj(xml_file):
+def get_obj(xml_path):
     """
     Grabs obj filename found in xml file
 
-    :param xml_file: xml path and file name
+    :param xml_path: xml path and file name
     :return: obj filename
     """
-    file = xml_file
+    file = xml_path
     tree = et.parse(file)
     root = tree.getroot()
     obj = ""
@@ -120,19 +119,16 @@ def stage_name(stages_dir):
     return stg_nm
 
 
-def txt_to_xml(ws2ify_path, stages_dir, s_name):
+def txt_to_xml(ws2ify_path, stage_dir):
     """
     Runs ws2ify to convert txt to xml config
 
     :param ws2ify_path: ws2ify run.py file path
-    :param stages_dir: Directory of stage folders
-    :param s_name: Stage name
+    :param stage_dir: Path to stage folder
 
     :return: If ws2ify is used, returns xml file name. Else, returns None.
     """
 
-    stages_dir = os.path.expanduser(stages_dir)
-    stage_dir = os.path.join(stages_dir, s_name)
     txt_file = get_file(stage_dir, ".txt", override=True)
     obj_file = get_file(stage_dir, ".obj", override=True)
     keyframe_easing_dict = {"1": "LINEAR", "2": "EASED"}
@@ -176,7 +172,7 @@ def txt_to_xml(ws2ify_path, stages_dir, s_name):
         return xml
 
 
-def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
+def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir):
     """
     Run lz_both.bat file with the following command line arguments (in order):
         (1) ws2lzfrontend.exe directory, (2) stages directory,
@@ -184,15 +180,20 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
 
     :param s_name: Stage name
     :param s_number: Stage number
+    :param ws2ify_path: Path to ws2ify run.py file
     :param ws2_fe_dir: Directory containing ws2lzfrontend.exe file
     :param lz_tool_dir: Directory containing SMB_LZ_Tool.exe file
     :param stages_dir: Directory of stage folders
     :return: None
     """
-
+    import pdb
+    pdb.set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
-    xml_file = get_file(stage_dir, ".xml")
+    xml_file = txt_to_xml(ws2ify_path, stage_dir)
+
+    if not xml_file:
+        xml_file = get_file(stage_dir, ".xml", override=False)
 
     if not xml_file:
         print("\nNo XML exists. Quitting program...")
@@ -215,20 +216,25 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2_fe_dir, lz_tool_dir):
     os.rename(src, dst)
 
 
-def stage_def(s_name, stages_dir, ws2_fe_dir):
+def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir):
     """
     Run lz_raw.bat file with the following command line arguments (in order):
         (1) ws2lzfrontend.exe directory, (2) stages directory,
         (3) stage name, (4) stage xml filename
 
     :param s_name: Stage name
+    :param ws2ify_path: Path to ws2ify run.py file
     :param ws2_fe_dir: Directory containing ws2lzfrontend.exe file
     :param stages_dir: Directory of stage folders
     :return: None
     """
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
-    xml_file = get_file(stage_dir, ".xml")
+    xml_file = txt_to_xml(ws2ify_path, stage_dir)
+
+    if not xml_file:
+        xml_file = get_file(stage_dir, ".xml", override=False)
+
     obj_file = get_obj(os.path.join(stage_dir, xml_file))
     raw_lz_file = "output.lz.raw"
 
@@ -420,14 +426,14 @@ def select_cmd():
 
     :return: User-specified command
     """
-    help_dict = {'a': "Create and compress LZ, create GMA/TPL, "
+    help_dict = {'a': "Create LZ, GMA/TPL, "
                       "replace stage files in //stage directory of ISO, run GCR",
-                 'ang': "Create and compress LZ, create GMA/TPL, "
+                 'ang': "Create LZ, GMA/TPL, "
                         "replace stage files in //stage directory of ISO",
-                 'anr': "Create and compress LZ, create GMA/TPL",
-                 'ra': "Create .lz.raw file",
-                 'cp': "Compress .lz.raw file",
-                 'rc': "Create .lz.raw file, compress .lz.raw file",
+                 'anr': "Create LZ, GMA/TPL",
+                 'ra': "Create .lz.raw",
+                 'cp': "Compress .lz.raw",
+                 'rc': "Create LZ",
                  'gt': "Create GMA/TPL",
                  'rs': "Replace stage files in //stage directory of ISO, run GCR",
                  'gc': "Run GCR"
@@ -469,8 +475,8 @@ if __name__ == '__main__':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
 
-        txt_to_xml(dirs["ws2ify"], dirs["levels"], stage_name)
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
         open_gcr(dirs["gcr"])
@@ -478,20 +484,22 @@ if __name__ == '__main__':
     elif cmd == 'ang':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
 
     elif cmd == 'anr':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
 
     elif cmd == 'ra':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
-        stage_def(stage_name, dirs["levels"], dirs["ws2lzfrontend"])
+        stage_def(stage_name, dirs["levels"], dirs["ws2ify"], dirs["ws2lzfrontend"])
 
     elif cmd == 'cp':
         stage_name = stage_name(dirs["levels"])
@@ -501,7 +509,8 @@ if __name__ == '__main__':
     elif cmd == 'rc':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
 
     elif cmd == 'gt':
         stage_name = stage_name(dirs["levels"])
