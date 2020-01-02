@@ -138,7 +138,8 @@ def txt_to_xml(ws2ify_path, stage_dir):
 
         while True:
             use_ws2ify = input("Use ws2ify? (Y/N) ")
-            use_ws2ify = use_ws2ify.upper()[0]
+            if use_ws2ify:
+                use_ws2ify = use_ws2ify.upper()[0]
 
             if use_ws2ify != "Y" and use_ws2ify != "N":
                 print("\nInvalid input.\n")
@@ -172,7 +173,7 @@ def txt_to_xml(ws2ify_path, stage_dir):
         return xml
 
 
-def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir):
+def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir, return_xml=False):
     """
     Run lz_both.bat file with the following command line arguments (in order):
         (1) ws2lzfrontend.exe directory, (2) stages directory,
@@ -183,8 +184,9 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_to
     :param ws2ify_path: Path to ws2ify run.py file
     :param ws2_fe_dir: Directory containing ws2lzfrontend.exe file
     :param lz_tool_dir: Directory containing SMB_LZ_Tool.exe file
+    :param return_xml: Bool
     :param stages_dir: Directory of stage folders
-    :return: None
+    :return: True -> return xml file name; False -> return None
     """
     import pdb
     pdb.set_trace()
@@ -214,6 +216,9 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_to
     if os.path.isfile(dst):
         os.remove(dst)
     os.rename(src, dst)
+
+    if return_xml:
+        return xml_file
 
 
 def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir):
@@ -290,7 +295,7 @@ def comp_lz(s_name, s_number, stages_dir, lz_tool_dir):
     os.rename(src, dst)
 
 
-def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir):
+def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir, in_xml=None):
     """
     Run GXModelViewer or GXModelViewerNoGUI
 
@@ -299,6 +304,7 @@ def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir):
     :param stages_dir: Directory of stage folders
     :param gx_dir: Directory of GXModelViewer.exe
     :param gxnogui_dir: Directory of GXModelViewer.exe (NOGUI)
+    :param in_xml: xml file name if LZ was created in the same code run; Else, None
     :return: None
     """
     stages_dir = os.path.expanduser(stages_dir)
@@ -307,7 +313,12 @@ def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir):
     gxnogui_dir = os.path.expanduser(gxnogui_dir)
     gx_executable = os.path.join(gx_dir, "GxModelViewer.exe")
     gxnogui_executable = os.path.join(gxnogui_dir, "GxModelViewer.exe")
-    xml_file = get_file(stage_dir, ".xml")
+
+    if in_xml:
+        xml_file = in_xml
+    else:
+        xml_file = get_file(stage_dir, ".xml")
+
     obj_file = get_obj(os.path.join(stage_dir, xml_file))
     obj_file_w_path = os.path.join(stage_dir, obj_file)
     obj_file_no_ext = obj_file.split(".")[0]
@@ -475,26 +486,35 @@ if __name__ == '__main__':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
 
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
-        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
+        x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
+
+        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
         open_gcr(dirs["gcr"])
 
     elif cmd == 'ang':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
+
+        x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+                            dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
+
         stage_def_to_lz(stage_name, stage_number, dirs["levels"],
                         dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
-        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
+        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
 
     elif cmd == 'anr':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
+
+        x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
+                            dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
+
         stage_def_to_lz(stage_name, stage_number, dirs["levels"],
                         dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
-        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
+        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
 
     elif cmd == 'ra':
         stage_name = stage_name(dirs["levels"])
