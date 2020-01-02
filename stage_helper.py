@@ -137,7 +137,7 @@ def txt_to_xml(ws2ify_path, stage_dir):
     if txt_file and obj_file:
 
         while True:
-            use_ws2ify = input("\nUse ws2ify? (Y/N) ")
+            use_ws2ify = input("\nTXT exists. Use ws2ify? (Y/N) ")
             if use_ws2ify:
                 use_ws2ify = use_ws2ify.upper()[0]
 
@@ -187,8 +187,7 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_to
     :param stages_dir: Directory of stage folders
     :return: True -> return xml file name; False -> return None
     """
-    import pdb
-    pdb.set_trace()
+
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     xml_file = txt_to_xml(ws2ify_path, stage_dir)
