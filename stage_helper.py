@@ -435,20 +435,19 @@ def select_cmd():
 
     :return: User-specified command
     """
-    help_dict = {'a': "Create LZ, GMA/TPL, "
-                      "replace stage files in //stage directory of ISO, run GCR",
-                 'ang': "Create LZ, GMA/TPL, "
-                        "replace stage files in //stage directory of ISO",
-                 'anr': "Create LZ, GMA/TPL",
-                 'ra': "Create .lz.raw",
-                 'cp': "Compress .lz.raw",
-                 'rc': "Create LZ",
-                 'gt': "Create GMA/TPL",
-                 'rs': "Replace stage files in //stage directory of ISO, run GCR",
-                 'gc': "Run GCR"
+    help_dict = {'1': "Create LZ, GMA/TPL, "
+                      "replace stage files in <ISO path>//stage directory",
+                 '2': "Create LZ, GMA/TPL, "
+                      "replace stage files in <ISO path>//stage directory",
+                 '3': "Create LZ, GMA/TPL",
+                 '4': "Create .lz.raw",
+                 '5': "Compress .lz.raw",
+                 '6': "Create LZ",
+                 '7': "Create GMA/TPL",
+                 '8': "Replace stage files in <ISO path>//stage directory, run GCR",
+                 '9': "Run GCR"
                  }
 
-    print("\nCommands:\n")
     for h_key, h_value in help_dict.items():
         print("{} ----> {}".format(h_key, h_value))
 
@@ -480,7 +479,7 @@ if __name__ == '__main__':
         sys.exit(1)
 
     cmd = select_cmd()
-    if cmd == 'a':
+    if cmd == '1':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
 
@@ -491,7 +490,7 @@ if __name__ == '__main__':
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
         open_gcr(dirs["gcr"])
 
-    elif cmd == 'ang':
+    elif cmd == '2':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
 
@@ -503,7 +502,7 @@ if __name__ == '__main__':
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
 
-    elif cmd == 'anr':
+    elif cmd == '3':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
 
@@ -514,33 +513,33 @@ if __name__ == '__main__':
                         dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
 
-    elif cmd == 'ra':
+    elif cmd == '4':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
         stage_def(stage_name, dirs["levels"], dirs["ws2ify"], dirs["ws2lzfrontend"])
 
-    elif cmd == 'cp':
+    elif cmd == '5':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
         comp_lz(stage_name, stage_number, dirs["levels"], dirs["SMB_LZ_Tool"])
 
-    elif cmd == 'rc':
+    elif cmd == '6':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
         stage_def_to_lz(stage_name, stage_number, dirs["levels"],
                         dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
 
-    elif cmd == 'gt':
+    elif cmd == '7':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
 
-    elif cmd == 'rs':
+    elif cmd == '8':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
 
-    elif cmd == 'gc':
+    elif cmd == '9':
         open_gcr(dirs["gcr"])
 
     else:
