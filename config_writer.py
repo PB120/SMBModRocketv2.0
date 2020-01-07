@@ -5,7 +5,7 @@ import sys
 import glob
 tool_path = sys.path[0]
 filename = os.path.join(tool_path, "config.txt")
-file_lst = ["ws2lzfrontend.exe", "SMB_LZ_Tool.exe", "GxModelViewer.exe", "GxModelViewer.exe", "gcr.exe"]
+file_lst = ["ws2lzfrontend.exe", "SMB_LZ_Tool.exe", "bgtool.exe", "GxModelViewer.exe", "GxModelViewer.exe", "gcr.exe"]
 
 
 def grab_dirs(config_file=filename):
@@ -15,7 +15,6 @@ def grab_dirs(config_file=filename):
     :param config_file: Automation tool config file name and path (str)
     :return: Dictionary (keys as generic names describing directories: values as the directories)
     """
-
     dir_dict = {}
 
     # Return None if config file doesn't exist
@@ -46,6 +45,7 @@ def default_config(f_name):
                     "levels: Directory of your custom SMB2 level folders\n"
                     "ws2lzfrontend: Directory of ws2lzfrontend.exe\n"
                     "ws2ify: Directory of ws2ify run.py file\n"
+                    "bgtool: Directory of bgtool.exe\n"
                     "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
                     "GXModelViewer: Directory of GxModelViewer.exe\n"
                     "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
@@ -55,7 +55,8 @@ def default_config(f_name):
                     "YOUR DIRECTORIES\n"
                     "levels=\"Enter your directory here\"\n"
                     "ws2lzfrontend=\"Enter your directory here\"\n"
-                    "ws2ify=\Enter your directory here\"\n"
+                    "ws2ify=\"Enter your directory here\"\n"
+                    "bgtool=\"Enter your directory here\"\n"
                     "SMB_LZ_Tool=\"Enter your directory here\"\n"
                     "GXModelViewer=\"Enter your directory here\"\n"
                     "GxModelViewerNoGUI=\"Enter your directory here\"\n"
@@ -111,7 +112,6 @@ def config_input(m_files):
     while True:
         new_dict = {}
         for key, value in m_files.items():
-
             while True:
                 if key == "levels":
                     new_dir = input("Please input the directory "
@@ -133,6 +133,13 @@ def config_input(m_files):
                     new_dir = input("Please input the directory "
                                     "that contains the run.py file for ws2ify")
                     if not os.path.isfile(os.path.join(new_dir, "run.py")):
+                        print("Directory does not contain run.py. Try again.")
+                        continue
+
+                elif key == "bgtool":
+                    new_dir = input("Please input the directory "
+                                    "that contains the bg files including bgtool.exe ")
+                    if not os.path.isfile(os.path.join(new_dir, "bgtool.exe")):
                         print("Directory does not contain run.py. Try again.")
                         continue
 
@@ -180,12 +187,12 @@ def write_config():
 
     :return: Nothing
     """
-
     with open(filename, "w+") as f2_out:
         f2_out.write("Directory descriptions\n"
                      "levels: Directory of your custom SMB2 level folders\n"
                      "ws2lzfrontend: Directory of ws2lzfrontend.exe\n"
                      "ws2ify: Directory of run.py file in ws2ify folder\n"
+                     "bgtool: Directory of bg files including bgtool.exe\n"
                      "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
                      "GXModelViewer: Directory of GxModelViewer.exe\n"
                      "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
@@ -199,10 +206,10 @@ def write_config():
     print("\nConfig file successfully built.")
 
 
-dirs = grab_dirs()
+config_exists = os.path.isfile(filename)
 
 # If the config does not exist
-if not dirs:
+if not config_exists:
     default_config(filename)
     dirs = grab_dirs()
     f_dict = map_files(file_lst, dirs)
@@ -210,7 +217,7 @@ if not dirs:
     write_config()
 
 # If the config's directories are default values ("Enter your directory here")
-elif "Enter your directory here" in dirs.values():
+elif "Enter your directory here" in grab_dirs().values():
     default_config(filename)
     dirs = grab_dirs()
     f_dict = map_files(file_lst, dirs)
@@ -220,6 +227,7 @@ elif "Enter your directory here" in dirs.values():
 # If the config does exist, but >=1 directories were edited outside of the program and are incorrect
 else:
     incorrect_dir = False
+    dirs = grab_dirs()
     for dirs_key, dirs_value in dirs.items():
         if not os.path.isdir(dirs_value):
             print("\"{}\" is not a valid directory for {}!".format(dirs_value, dirs_key))
@@ -242,6 +250,8 @@ else:
                 write_config()
                 break
 
+    # If the config does exist and directories are correct
+
     if not incorrect_dir:
         if __name__ == '__main__':
             while True:
@@ -254,7 +264,8 @@ else:
                     sys.exit(0)
                 else:
                     default_config(filename)
-                    grab_dirs()
+                    dirs = grab_dirs()
                     f_dict = map_files(file_lst, dirs)
                     config_dict = config_input(f_dict)
                     write_config()
+                    break

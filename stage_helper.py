@@ -5,7 +5,14 @@ import os
 from shutil import copyfile
 import xml.etree.ElementTree as et
 import config_writer
+import re
 
+bg_dir = os.path.expanduser("F:\SMBCustomLevelStuff\\bgtool\\bgfiles")
+#os.chdir(bg_dir)
+#bg_themes = set([re.split('[^a-zA-Z]', file)[0] for file in os.listdir(bg_dir) if file != "bgtool.exe"])
+#print(bg_themes)
+
+#sys.exit()
 
 def get_file(path, extension, override=False):
     """
@@ -172,6 +179,48 @@ def txt_to_xml(ws2ify_path, stage_dir):
         return xml
 
 
+def apply_bg_data(s_name, stage_dir, bgfiles_path):
+    """
+
+    :param s_name: stage name
+    :param stage_dir: directory of stage folder
+    :param bgfiles_path: bgfiles folder path
+    :return: None
+    """
+
+    os.chdir(bgfiles_path)
+    all_bg_themes = set([re.split('[^a-zA-Z0-9]', file)[0]
+                         for file in os.listdir(bgfiles_path) if file != "bgtool.exe"])
+
+    bg_themes1 = ["\nSMB themes: \n"] + list(set([re.split('[^a-zA-Z]', file)[0]
+                                         for file in all_bg_themes if file != "bgtool.exe"]))
+    bg_themes2 = ["\nSMB2 themes: \n"] + [bg for bg in all_bg_themes if "2" in bg]
+
+    all_bg_themes = bg_themes1 + bg_themes2
+
+    [print(theme) for theme in all_bg_themes]
+    while True:
+        bg_choice = input("\nSelect bg: ")
+        if bg_choice not in all_bg_themes:
+            print("Bg not found.")
+        else:
+            break
+
+    subprocess.call(["bgtool.exe", "{}\\output.lz.raw".format(stage_dir), "-r", bg_choice])
+
+    src = os.path.join(stage_dir, "output.lz.raw_newbg")
+    dst = os.path.join(stage_dir, "output.lz.raw")
+    if os.path.isfile(dst):
+        os.remove(dst)
+    os.rename(src, dst)
+
+    os.chdir(config_writer.tool_path)
+
+    sys.exit()
+
+#apply_bg_data("Plane_Simple", "F:\SMBCustomLevelStuff\Levels", bg_dir)
+
+
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir, return_xml=False):
     """
     Run lz_both.bat file with the following command line arguments (in order):
@@ -215,6 +264,20 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_to
         os.remove(dst)
     os.rename(src, dst)
 
+    while True:
+        user_choice = input("Apply vanilla BG? (Y/N) ")
+        if len(user_choice) == 0 or (user_choice.upper()[0] != "Y" and user_choice.upper()[0] != "N"):
+            print("\nInvalid input.\n")
+        elif user_choice.upper()[0] == "N":
+            break
+        else:
+            apply_bg_data(s_name, stage_dir)
+
+
+
+
+
+
     if return_xml:
         return xml_file
 
@@ -231,6 +294,7 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir):
     :param stages_dir: Directory of stage folders
     :return: None
     """
+
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     xml_file = txt_to_xml(ws2ify_path, stage_dir)
