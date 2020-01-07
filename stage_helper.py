@@ -264,25 +264,11 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_to
         os.remove(dst)
     os.rename(src, dst)
 
-    while True:
-        user_choice = input("Apply vanilla BG? (Y/N) ")
-        if len(user_choice) == 0 or (user_choice.upper()[0] != "Y" and user_choice.upper()[0] != "N"):
-            print("\nInvalid input.\n")
-        elif user_choice.upper()[0] == "N":
-            break
-        else:
-            apply_bg_data(s_name, stage_dir)
-
-
-
-
-
-
     if return_xml:
         return xml_file
 
 
-def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir):
+def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
     """
     Run lz_raw.bat file with the following command line arguments (in order):
         (1) ws2lzfrontend.exe directory, (2) stages directory,
@@ -291,6 +277,7 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir):
     :param s_name: Stage name
     :param ws2ify_path: Path to ws2ify run.py file
     :param ws2_fe_dir: Directory containing ws2lzfrontend.exe file
+    :param bgfiles_path: bgtool path
     :param stages_dir: Directory of stage folders
     :return: None
     """
@@ -325,6 +312,15 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir):
 
     else:
         subprocess.call(["lz_raw.bat", ws2_fe_dir, stages_dir, s_name, xml_file])
+
+    while True:
+        user_choice = input("Apply vanilla BG? (Y/N) ")
+        if len(user_choice) == 0 or (user_choice.upper()[0] != "Y" and user_choice.upper()[0] != "N"):
+            print("\nInvalid input.\n")
+        elif user_choice.upper()[0] == "N":
+            break
+        else:
+            apply_bg_data(s_name, stage_dir, bgfiles_path)
 
 
 def comp_lz(s_name, s_number, stages_dir, lz_tool_dir):
@@ -561,8 +557,6 @@ if __name__ == '__main__':
         x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
                             dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
 
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
 
@@ -573,14 +567,12 @@ if __name__ == '__main__':
         x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
                             dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
 
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
 
     elif cmd == '4':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
-        stage_def(stage_name, dirs["levels"], dirs["ws2ify"], dirs["ws2lzfrontend"])
+        stage_def(stage_name, dirs["levels"], dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["bgtool"])
 
     elif cmd == '5':
         stage_name = stage_name(dirs["levels"])
