@@ -175,10 +175,9 @@ def txt_to_xml(ws2ify_path, stage_dir):
         return xml
 
 
-def apply_bg_data(s_name, stage_dir, bgfiles_path):
+def apply_bg_data(stage_dir, bgfiles_path):
     """
 
-    :param s_name: stage name
     :param stage_dir: directory of stage folder
     :param bgfiles_path: bgfiles folder path
     :return: None
@@ -187,12 +186,6 @@ def apply_bg_data(s_name, stage_dir, bgfiles_path):
     os.chdir(bgfiles_path)
     all_bg_themes = set([re.split('[^a-zA-Z0-9]', file)[0]
                          for file in os.listdir(bgfiles_path) if file != "bgtool.exe"])
-
-    bg_themes1 = ["\nSMB themes: \n"] + list(set([re.split('[^a-zA-Z]', file)[0]
-                                         for file in all_bg_themes if file != "bgtool.exe"]))
-    bg_themes2 = ["\nSMB2 themes: \n"] + [bg for bg in all_bg_themes if "2" in bg]
-
-    all_bg_themes = bg_themes1 + bg_themes2
 
     [print(theme) for theme in all_bg_themes]
     while True:
@@ -213,6 +206,8 @@ def apply_bg_data(s_name, stage_dir, bgfiles_path):
     os.chdir(config_writer.tool_path)
 
     sys.exit()
+
+#apply_bg_data("F:\\SMBCustomLevelStuff\Levels\Falling_Maze_Escape", "F:\SMBCustomLevelStuff\\bgtool\\bgfiles")
 
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir, return_xml=False):
@@ -314,7 +309,7 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
         elif user_choice.upper()[0] == "N":
             break
         else:
-            apply_bg_data(s_name, stage_dir, bgfiles_path)
+            apply_bg_data(stage_dir, bgfiles_path)
 
 
 def comp_lz(s_name, s_number, stages_dir, lz_tool_dir):
@@ -469,17 +464,25 @@ def replace_stage_files(s_name, s_number, stages_dir, iso_dir):
     copyfile(src_tpl, dst_tpl)
 
 
-def open_gcr(gcr_dir):
+def rebuild_iso(gcr_dir, iso_dir):
     """
     Run gcr.exe
 
     Must type either"Y" or "y" to open GCR
     :param gcr_dir: Directory of gcr.exe file
+    :param iso_dir: Directory of ISO disc file
     :return: None
     """
     gcr_dir = os.path.expanduser(gcr_dir)
     gcr_executable = os.path.join(gcr_dir, "gcr.exe")
-    subprocess.Popen([gcr_executable])
+    iso_file = get_file(iso_dir, ".iso", override=True)
+
+    iso_file_path = os.path.join(iso_dir, iso_file)
+    root_dir = os.path.join(iso_dir, "root")
+
+    print("Rebuilding ISO...\n")
+    subprocess.call([gcr_executable, root_dir, iso_file_path])
+    print("DONE!")
 
 
 def select_cmd():
@@ -489,7 +492,7 @@ def select_cmd():
     :return: User-specified command
     """
     help_dict = {'1': "Create LZ, GMA/TPL, "
-                      "replace stage files in <ISO path>//stage directory",
+                      "replace stage files in <ISO path>//stage directory, rebuild ISO",
                  '2': "Create LZ, GMA/TPL, "
                       "replace stage files in <ISO path>//stage directory",
                  '3': "Create LZ, GMA/TPL",
@@ -498,7 +501,7 @@ def select_cmd():
                  '6': "Create LZ",
                  '7': "Create GMA/TPL",
                  '8': "Replace stage files in <ISO path>//stage directory, run GCR",
-                 '9': "Run GCR"
+                 '9': "Rebuild ISO"
                  }
 
     for h_key, h_value in help_dict.items():
@@ -541,7 +544,7 @@ if __name__ == '__main__':
 
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
-        open_gcr(dirs["gcr"])
+        rebuild_iso(dirs["gcr"], dirs["iso"])
 
     elif cmd == '2':
         stage_name = stage_name(dirs["levels"])
@@ -589,7 +592,7 @@ if __name__ == '__main__':
         replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
 
     elif cmd == '9':
-        open_gcr(dirs["gcr"])
+        rebuild_iso(dirs["gcr"], dirs["iso"])
 
     else:
         print("Problem with select_cmd function. Please double check the code.")
