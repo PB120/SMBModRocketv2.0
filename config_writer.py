@@ -49,7 +49,7 @@ def default_config(f_name):
                     "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
                     "GXModelViewer: Directory of GxModelViewer.exe\n"
                     "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
-                    "stage: Directory of \"stage\" folder in game root folder\n"
+                    "iso: Directory of ISO\n"
                     "gcr: Directory of gcr.exe\n"
                     "\n"
                     "YOUR DIRECTORIES\n"
@@ -60,7 +60,7 @@ def default_config(f_name):
                     "SMB_LZ_Tool=\"Enter your directory here\"\n"
                     "GXModelViewer=\"Enter your directory here\"\n"
                     "GxModelViewerNoGUI=\"Enter your directory here\"\n"
-                    "stage=\"Enter your directory here\"\n"
+                    "iso=\"Enter your directory here\"\n"
                     "gcr=\"Enter your directory here\"\n"
                     )
 
@@ -116,10 +116,8 @@ def config_input(m_files):
                 if key == "levels":
                     new_dir = input("Please input the directory "
                                     "that contains all the folders of your custom stages: ")
-                elif key == "stage":
-                    new_dir = input("Please input the directory of the "
-                                    "\"stage\" folder found in the \"root\" "
-                                    "folder of your ISO: ")
+                elif key == "iso":
+                    new_dir = input("Please input the directory of your ISO disc file: ")
                 elif key == "GXModelViewer" or key == "GxModelViewerNoGUI":
                     while True:
                         new_dir = input("Please input the {} directory: ".format(key))
@@ -131,14 +129,14 @@ def config_input(m_files):
 
                 elif key == "ws2ify":
                     new_dir = input("Please input the directory "
-                                    "that contains the run.py file for ws2ify")
+                                    "that contains the run.py file for ws2ify: ")
                     if not os.path.isfile(os.path.join(new_dir, "run.py")):
                         print("Directory does not contain run.py. Try again.")
                         continue
 
                 elif key == "bgtool":
                     new_dir = input("Please input the directory "
-                                    "that contains the bg files including bgtool.exe ")
+                                    "that contains the bg files including bgtool.exe: ")
                     if not os.path.isfile(os.path.join(new_dir, "bgtool.exe")):
                         print("Directory does not contain run.py. Try again.")
                         continue
@@ -196,7 +194,7 @@ def write_config():
                      "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
                      "GXModelViewer: Directory of GxModelViewer.exe\n"
                      "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
-                     "stage: Directory of \"stage\" folder in game root folder\n"
+                     "iso: Directory of ISO\n"
                      "gcr: Directory of gcr.exe\n"
                      "\n"
                      "YOUR DIRECTORIES\n")

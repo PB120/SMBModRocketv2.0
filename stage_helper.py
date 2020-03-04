@@ -8,11 +8,7 @@ import config_writer
 import re
 
 bg_dir = os.path.expanduser("F:\SMBCustomLevelStuff\\bgtool\\bgfiles")
-#os.chdir(bg_dir)
-#bg_themes = set([re.split('[^a-zA-Z]', file)[0] for file in os.listdir(bg_dir) if file != "bgtool.exe"])
-#print(bg_themes)
 
-#sys.exit()
 
 def get_file(path, extension, override=False):
     """
@@ -218,8 +214,6 @@ def apply_bg_data(s_name, stage_dir, bgfiles_path):
 
     sys.exit()
 
-#apply_bg_data("Plane_Simple", "F:\SMBCustomLevelStuff\Levels", bg_dir)
-
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir, return_xml=False):
     """
@@ -388,7 +382,6 @@ def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir, in_xml=None):
 
     while True:
         gui_choice = input("Open GX with or without GUI? (Y for GUI, N for NOGUI) ")
-
         if gui_choice == "":
             subprocess.call([gxnogui_executable, obj_file_w_path])
 
@@ -431,7 +424,7 @@ def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir, in_xml=None):
         pass
 
 
-def replace_stage_files(s_name, s_number, stages_dir, iso_stages_dir):
+def replace_stage_files(s_name, s_number, stages_dir, iso_dir):
     """
     Copies stage files from //<stagename> folder to //stages folder in ISO
     if and only if all three stage files (STAGEXXX.lz, stXXX.gma, stXXX.gma) exist in //<stagename>.
@@ -439,12 +432,12 @@ def replace_stage_files(s_name, s_number, stages_dir, iso_stages_dir):
     :param s_name: Stage name passed in from stage_name function
     :param s_number: Stage number passed in from stage_number function
     :param stages_dir: Directory of stage folders
-    :param iso_stages_dir: Path of "stages" folder in game root folder
+    :param iso_dir: Game disc file directory
     :return: None
     """
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
-    iso_stages_dir = os.path.expanduser(iso_stages_dir)
+    iso_stages_dir = os.path.expanduser(os.path.join(iso_dir, "root//stage"))
 
     src_lz = os.path.join(stage_dir, "STAGE{}.lz".format(s_number))
     src_gma = os.path.join(stage_dir, "st{}.gma".format(s_number))
@@ -547,7 +540,7 @@ if __name__ == '__main__':
                         dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
 
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
-        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
+        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
         open_gcr(dirs["gcr"])
 
     elif cmd == '2':
@@ -558,7 +551,7 @@ if __name__ == '__main__':
                             dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
 
         gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
-        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
+        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
 
     elif cmd == '3':
         stage_name = stage_name(dirs["levels"])
@@ -593,7 +586,7 @@ if __name__ == '__main__':
     elif cmd == '8':
         stage_name = stage_name(dirs["levels"])
         stage_number = stage_num()
-        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["stage"])
+        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
 
     elif cmd == '9':
         open_gcr(dirs["gcr"])
