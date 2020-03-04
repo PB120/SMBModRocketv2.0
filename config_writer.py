@@ -5,7 +5,8 @@ import sys
 import glob
 tool_path = sys.path[0]
 filename = os.path.join(tool_path, "config.txt")
-file_lst = ["ws2lzfrontend.exe", "SMB_LZ_Tool.exe", "bgtool.exe", "GxModelViewer.exe", "GxModelViewer.exe", "gcr.exe"]
+file_lst = ["ws2lzfrontend.exe", "SMB_LZ_Tool.exe", "bgtool.exe", "gmatool.exe",
+            "GxModelViewer.exe", "GxModelViewer.exe", "gcr.exe"]
 
 
 def grab_dirs(config_file=filename):
@@ -47,6 +48,7 @@ def default_config(f_name):
                     "ws2ify: Directory of ws2ify run.py file\n"
                     "bgtool: Directory of bgtool.exe\n"
                     "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
+                    "gmatool: Directory of gmatool.exe\n"
                     "GXModelViewer: Directory of GxModelViewer.exe\n"
                     "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
                     "iso: Directory of ISO\n"
@@ -58,6 +60,7 @@ def default_config(f_name):
                     "ws2ify=\"Enter your directory here\"\n"
                     "bgtool=\"Enter your directory here\"\n"
                     "SMB_LZ_Tool=\"Enter your directory here\"\n"
+                    "gmatool=\"Enter your directory here\"\n"
                     "GXModelViewer=\"Enter your directory here\"\n"
                     "GxModelViewerNoGUI=\"Enter your directory here\"\n"
                     "iso=\"Enter your directory here\"\n"
@@ -192,6 +195,7 @@ def write_config():
                      "ws2ify: Directory of run.py file in ws2ify folder\n"
                      "bgtool: Directory of bg files including bgtool.exe\n"
                      "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
+                     "gmatool: Directory of gmatool.exe\n"
                      "GXModelViewer: Directory of GxModelViewer.exe\n"
                      "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
                      "iso: Directory of ISO\n"

@@ -207,8 +207,6 @@ def apply_bg_data(stage_dir, bgfiles_path):
 
     sys.exit()
 
-#apply_bg_data("F:\\SMBCustomLevelStuff\Levels\Falling_Maze_Escape", "F:\SMBCustomLevelStuff\\bgtool\\bgfiles")
-
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir, return_xml=False):
     """
