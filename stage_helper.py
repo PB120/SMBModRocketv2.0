@@ -2,7 +2,7 @@
 import subprocess
 import sys
 import os
-from shutil import copyfile
+import shutil
 import xml.etree.ElementTree as et
 import config_writer
 import re
@@ -340,6 +340,146 @@ def comp_lz(s_name, s_number, stages_dir, lz_tool_dir):
     os.rename(src, dst)
 
 
+def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
+    """
+
+    :param s_name: Stage name
+    :param s_number: Stage number
+    :param stages_dir: Directory of stage folders
+    :param gmatool_dir: gmatool.exe directory
+    :return: None
+    """
+    """gmatool_args = {"Extract goal data": ["1", "-ge"], "Extract switch data": ["2", "-se"],
+                    "Extract model data": ["3", "-me"], "Extract and combine model data": ["4", "-m"]}
+    all_args = [v[0] for v in gmatool_args.values()]
+    for k, v in gmatool_args.items():
+        print("{} ----> {}".format(v[0], k))
+    while True:
+        arg_input = input("Select command: ")
+        if arg_input not in all_args:
+            print("Invalid argument.")
+
+        elif arg_input == "1":
+            while True:
+                i_gmatpl = input("GMA/TPL path WITHOUT file extension: ")
+                if not os.path.isfile("{}.gma".format(i_gmatpl)) or not os.path.isfile("{}.tpl".format(i_gmatpl)):
+                    print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
+                else:
+                    while True:
+                        i_dst_gmatpl = input("\nDirectory destination: ")
+                        if not os.path.isdir(i_dst_gmatpl):
+                            print("Invalid directory.")
+                        else:
+                            os.chdir(i_dst_gmatpl)
+                            subprocess.call(["{}\\gmatool.exe".format(gmatool_dir),
+                                             gmatool_args["Extract goal data"][1], i_gmatpl])
+
+        elif arg_input == "2":
+            print("hi")
+        elif arg_input == "3":
+            print("hi")
+        else:
+            """
+    stages_dir = os.path.expanduser(stages_dir)
+    stage_dir = os.path.join(stages_dir, s_name)
+
+    #   Input source models
+
+    source_files = []   # list of all model file paths WITHOUT extensions
+    source_models = []  # list of all model names
+
+    files = 0
+    import pdb
+    pdb.set_trace()
+    while files < 2:
+        i_gmatpl = input("GMA/TPL path ({}) WITHOUT file extension: ".format(files + 1))
+        if not os.path.isfile("{}.gma".format(i_gmatpl)) or not os.path.isfile("{}.tpl".format(i_gmatpl)):
+            print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
+            continue
+        model = os.path.split(i_gmatpl)[-1]
+        source_files.append(i_gmatpl)
+        source_models.append(model)
+        files += 1
+
+        if files >= 2:
+            while True:
+                add_file = input("Add another GMA/TPL? (Y/N): ").lower()[0]
+                if add_file != "y" and add_file != "n":
+                    print("Invalid input.")
+                    continue
+                elif add_file == "n":
+                    break
+                else:
+                    i_gmatpl = input("GMA/TPL path ({}) WITHOUT file extension: ".format(files + 1))
+                    if not os.path.isfile("{}.gma".format(i_gmatpl)) or not os.path.isfile("{}.tpl".format(i_gmatpl)):
+                        print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
+                        continue
+                    model = os.path.split(i_gmatpl)[-1]
+                    source_files.append(i_gmatpl)
+                    source_models.append(model)
+                    files += 1
+
+    #   Move all models to gmatool directory
+
+    for model_path in source_files:
+        model = os.path.split(model_path)[-1]
+        src_gma = os.path.join("{}.gma".format(model_path))
+        src_tpl = os.path.join("{}.tpl".format(model_path))
+        dst_gma = os.path.join(gmatool_dir, "{}.gma".format(model))
+        dst_tpl = os.path.join(gmatool_dir, "{}.tpl".format(model))
+        if os.path.isfile(dst_gma):
+            os.remove(dst_gma)
+        shutil.copyfile()(src_gma, dst_gma)
+        if os.path.isfile(dst_tpl):
+            os.remove(dst_tpl)
+        shutil.copyfile()(src_tpl, dst_tpl)
+    
+    #   Merge all files together
+
+    os.chdir(gmatool_dir)
+    import pdb
+    pdb.set_trace()
+    combined_model = ""
+    source_models = ["st001", "st002", "goalmodel2", "st252", "snowmelt_goal"]
+    while len(source_models) > 1:
+        model_1 = source_models[0]
+        model_2 = source_models[1]
+        subprocess.call(["gmatool.exe", "-m", model_1, model_2])
+
+        #   Delete previous combined model
+        if combined_model:
+            os.remove("{}.gma".format(combined_model))
+            os.remove("{}.tpl".format(combined_model))
+
+        combined_model = "{}+{}".format(model_1, model_2)
+
+        source_models.remove(model_1)
+        source_models.remove(model_2)
+        source_models.insert(0, combined_model)
+
+    src_gma = "{}.gma".format(combined_model)
+    src_tpl = "{}.tpl".format(combined_model)
+    dst_gma = os.path.join(stage_dir, "st{}.gma".format(s_number))
+    dst_tpl = os.path.join(stage_dir, "st{}.tpl".format(s_number))
+
+    #   Delete obsolete stage gma/tpl
+    if os.path.isfile(dst_gma):
+        os.remove(dst_gma)
+    if os.path.isfile(dst_tpl):
+        os.remove(dst_tpl)
+
+    #   Rename new gma/tpl and move to destination
+    os.rename(src_gma, dst_gma)
+    os.rename(src_tpl, dst_tpl)
+
+    os.chdir(config_writer.tool_path)
+    sys.exit()
+
+
+use_gmatool("Descent_Path", "001", r"F:\SMBCustomLevelStuff\Levels", r"F:\SMBCustomLevelStuff\gmatool-master")
+#sys.exit()
+
+
 def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir, in_xml=None):
     """
     Run GXModelViewer or GXModelViewerNoGUI
@@ -457,9 +597,9 @@ def replace_stage_files(s_name, s_number, stages_dir, iso_dir):
     dst_gma = os.path.join(iso_stages_dir, "st{}.gma".format(s_number))
     dst_tpl = os.path.join(iso_stages_dir, "st{}.tpl".format(s_number))
 
-    copyfile(src_lz, dst_lz)
-    copyfile(src_gma, dst_gma)
-    copyfile(src_tpl, dst_tpl)
+    shutil.copyfile(src_lz, dst_lz)
+    shutil.copyfile(src_gma, dst_gma)
+    shutil.copyfile(src_tpl, dst_tpl)
 
 
 def rebuild_iso(gcr_dir, iso_dir):
