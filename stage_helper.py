@@ -403,8 +403,8 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
 
         if files >= 2:
             while True:
-                add_file = input("Add another GMA/TPL? (Y/N): ").lower()[0]
-                if add_file != "y" and add_file != "n":
+                add_file = input("Add another GMA/TPL? (Y/N): ").lower()
+                if not add_file or add_file != "y" and add_file != "n":
                     print("Invalid input.")
                     continue
                 elif add_file == "n":
@@ -419,7 +419,7 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
                     source_models.append(model)
                     files += 1
 
-    #   Move all models to gmatool directory
+    #   Move all models to gmatool directory if they do not already exist in that directory
 
     for model_path in source_files:
         model = os.path.split(model_path)[-1]
@@ -427,20 +427,20 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
         src_tpl = os.path.join("{}.tpl".format(model_path))
         dst_gma = os.path.join(gmatool_dir, "{}.gma".format(model))
         dst_tpl = os.path.join(gmatool_dir, "{}.tpl".format(model))
-        if os.path.isfile(dst_gma):
+        if os.path.isfile(dst_gma) and src_gma != dst_gma:
             os.remove(dst_gma)
-        shutil.copyfile()(src_gma, dst_gma)
-        if os.path.isfile(dst_tpl):
+            shutil.copyfile(src_gma, dst_gma)
+        if os.path.isfile(dst_tpl) and src_tpl != dst_tpl:
             os.remove(dst_tpl)
-        shutil.copyfile()(src_tpl, dst_tpl)
-    
+            shutil.copyfile(src_tpl, dst_tpl)
+
     #   Merge all files together
 
     os.chdir(gmatool_dir)
     import pdb
     pdb.set_trace()
     combined_model = ""
-    source_models = ["st001", "st002", "goalmodel2", "st252", "snowmelt_goal"]
+    #source_models = ["st001", "st002", "goalmodel2", "st252", "snowmelt_goal"]
     while len(source_models) > 1:
         model_1 = source_models[0]
         model_2 = source_models[1]
