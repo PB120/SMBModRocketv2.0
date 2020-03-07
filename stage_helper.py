@@ -389,8 +389,8 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
     source_models = []  # list of all model names
 
     files = 0
-    import pdb
-    pdb.set_trace()
+    #import pdb
+    #pdb.set_trace()
     while files < 2:
         i_gmatpl = input("GMA/TPL path ({}) WITHOUT file extension: ".format(files + 1))
         if not os.path.isfile("{}.gma".format(i_gmatpl)) or not os.path.isfile("{}.tpl".format(i_gmatpl)):
@@ -429,16 +429,16 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
         dst_tpl = os.path.join(gmatool_dir, "{}.tpl".format(model))
         if os.path.isfile(dst_gma) and src_gma != dst_gma:
             os.remove(dst_gma)
-            shutil.copyfile(src_gma, dst_gma)
         if os.path.isfile(dst_tpl) and src_tpl != dst_tpl:
             os.remove(dst_tpl)
-            shutil.copyfile(src_tpl, dst_tpl)
+        shutil.copyfile(src_gma, dst_gma)
+        shutil.copyfile(src_tpl, dst_tpl)
 
     #   Merge all files together
 
     os.chdir(gmatool_dir)
-    import pdb
-    pdb.set_trace()
+    #import pdb
+    #pdb.set_trace()
     combined_model = ""
     #source_models = ["st001", "st002", "goalmodel2", "st252", "snowmelt_goal"]
     while len(source_models) > 1:
@@ -476,7 +476,7 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
     sys.exit()
 
 
-use_gmatool("Descent_Path", "001", r"F:\SMBCustomLevelStuff\Levels", r"F:\SMBCustomLevelStuff\gmatool-master")
+use_gmatool("F:\SMBCustomLevelStuff\Levels\Elastic_Platforms", "252", r"F:\SMBCustomLevelStuff\Levels", r"F:\SMBCustomLevelStuff\gmatool-master")
 #sys.exit()
 
 
