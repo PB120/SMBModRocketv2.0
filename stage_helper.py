@@ -426,7 +426,7 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
     :param gmatool_dir: gmatool.exe directory
     :return: None
     """
-    
+
     while True:
         merge_input = input("Use gmatool to merge files? (Y/N) ").lower()
         if not merge_input or merge_input != "y" and merge_input != "n":
@@ -445,35 +445,44 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
             # stage model path
             source_models = [os.path.split(stage_gmatpl)[-1]]  # list of all model names. List starts with stage model
             files = 1
-
             while files < 2:
                 i_gmatpl = input("Path (WITHOUT file extension) to GMA/TPL to be merged with {}: ".format(stage_gmatpl))
-                if not os.path.isfile("{}.gma".format(i_gmatpl)) or not os.path.isfile("{}.tpl".format(i_gmatpl)):
+
+                if i_gmatpl in source_files:
+                    print("Duplicate file. Try again.")
+                    continue
+                elif not os.path.isfile("{}.gma".format(i_gmatpl)) or not os.path.isfile("{}.tpl".format(i_gmatpl)):
                     print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
                     continue
-                model = os.path.split(i_gmatpl)[-1]
-                source_files.append(i_gmatpl)
-                source_models.append(model)
-                files += 1
+                else:
+                    model = os.path.split(i_gmatpl)[-1]
+                    source_files.append(i_gmatpl)
+                    source_models.append(model)
+                    files += 1
 
-                if files >= 2:
-                    while True:
-                        add_file = input("Add another GMA/TPL? (Y/N): ").lower()
-                        if not add_file or add_file != "y" and add_file != "n":
-                            print("Invalid input.")
-                            continue
-                        elif add_file == "n":
-                            break
-                        else:
-                            i_gmatpl = input("GMA/TPL path ({}) WITHOUT file extension: ".format(files + 1))
-                            if not os.path.isfile("{}.gma".format(i_gmatpl))\
-                                    or not os.path.isfile("{}.tpl".format(i_gmatpl)):
-                                print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
+                    if files >= 2:
+                        while True:
+                            add_file = input("Add another GMA/TPL? (Y/N): ").lower()
+
+                            if not add_file or add_file != "y" and add_file != "n":
+                                print("Invalid input.")
                                 continue
-                            model = os.path.split(i_gmatpl)[-1]
-                            source_files.append(i_gmatpl)
-                            source_models.append(model)
-                            files += 1
+                            elif add_file == "n":
+                                break
+                            else:
+                                i_gmatpl = input("GMA/TPL path ({}) WITHOUT file extension: ".format(files + 1))
+                                if i_gmatpl in source_files:
+                                    print("Duplicate file. Try again.")
+                                    continue
+                                elif not os.path.isfile("{}.gma".format(i_gmatpl))\
+                                        or not os.path.isfile("{}.tpl".format(i_gmatpl)):
+                                    print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
+                                    continue
+                                else:
+                                    model = os.path.split(i_gmatpl)[-1]
+                                    source_files.append(i_gmatpl)
+                                    source_models.append(model)
+                                    files += 1
 
             #   Move all models to gmatool directory if they do not already exist in that directory
 
@@ -483,12 +492,22 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
                 src_tpl = os.path.join("{}.tpl".format(model_path))
                 dst_gma = os.path.join(gmatool_dir, "{}.gma".format(model))
                 dst_tpl = os.path.join(gmatool_dir, "{}.tpl".format(model))
-                if os.path.isfile(dst_gma) and src_gma != dst_gma:
+
+                if not os.path.isfile(dst_gma):
+                    shutil.copyfile(src_gma, dst_gma)
+                elif src_gma != dst_gma:
                     os.remove(dst_gma)
-                if os.path.isfile(dst_tpl) and src_tpl != dst_tpl:
+                    shutil.copyfile(src_gma, dst_gma)
+                else:
+                    pass
+
+                if not os.path.isfile(dst_tpl):
+                    shutil.copyfile(src_tpl, dst_tpl)
+                elif src_tpl != dst_tpl:
                     os.remove(dst_tpl)
-                shutil.copyfile(src_gma, dst_gma)
-                shutil.copyfile(src_tpl, dst_tpl)
+                    shutil.copyfile(src_tpl, dst_tpl)
+                else:
+                    pass
 
             #   Merge all files together
 
