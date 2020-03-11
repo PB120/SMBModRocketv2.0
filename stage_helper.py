@@ -6,6 +6,7 @@ import shutil
 import xml.etree.ElementTree as et
 import config_writer
 import re
+import time
 
 bg_dir = os.path.expanduser("F:\SMBCustomLevelStuff\\bgtool\\bgfiles")
 
@@ -394,8 +395,18 @@ def gmatpl(s_name, s_number, stages_dir, gx_dir, gxnogui_dir, in_xml=None):
             break
 
         elif gui_choice.lower()[0] == "y":
+            os.startfile(gx_executable)
             print("Opening GXModelViewer...")
-            subprocess.call([gx_executable])
+            time.sleep(5)
+            input("Enter anything when done using GXModelViewer. ").lower()
+
+            while True:
+                if not os.path.isfile(dst_gma) or not os.path.isfile(dst_tpl):
+                    input("st{}.gma and/or st{}.tpl files not found. Enter anything when both files "
+                          "are in {} ".format(stage_number, stage_number, stage_dir))
+                else:
+                    break
+
             break
 
         else:
@@ -445,8 +456,6 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
             # stage model path
             source_models = [os.path.split(stage_gmatpl)[-1]]  # list of all model names. List starts with stage model
             files = 1
-            import pdb
-            #pdb.set_trace()
             while files < 2:
                 i_gmatpl = input("Enter path (WITHOUT file extension) to GMA/TPL to be merged with {}. If model"
                                  " is in {}, just provide the name of the file. ".format(stage_gmatpl, gmatool_dir))
@@ -511,10 +520,7 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
                                 if i_gmatpl in source_files:
                                     print("Duplicate file. Try again.")
                                     continue
-                                #elif not os.path.isfile("{}.gma".format(i_gmatpl))\
-                                #   or not os.path.isfile("{}.tpl".format(i_gmatpl)):
-                                    #   print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
-                                    #   continue
+
                                 else:
                                     model = os.path.split(i_gmatpl)[-1]
                                     source_files.append(i_gmatpl)
