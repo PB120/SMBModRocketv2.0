@@ -7,9 +7,11 @@ Tutorial: https://www.youtube.com/watch?v=_9hoD28McoQ
 Requirements:
 - Windows
 - Python 3.6 or higher
-- Python packages: subprocess, sys, os, glob, shutil, xml.etree.ElementTree
+- Python packages: subprocess, sys, os, glob, shutil, xml.etree.ElementTree, re, time
 - smblevelworkshop2-withdeps (must have ws2lzfrontend.exe)
+- bgtool
 - SMB_LZ_Tool
+- gmatool
 - GXModelViewer
 - GXModelViewerNoGUI
 - GCR
@@ -21,11 +23,14 @@ SMBModRocket is an automation tool designed to expedite the process of using
 several existing tools from other developers to create stage files.
 
 - .lz.raw creation
-- .lz.raw compression
+- vanilla bg data insertion
+- .lz creation
+- ws2ify usage
 - .gma/.tpl creation
+- gmatool file merge
 - renaming stage filenames
 - moving stage files to //stage folder of ISO
-- open GameCube Rebuilder
+- rebuild ISO
 
 
 How to SMBModRocket
@@ -36,31 +41,28 @@ to set up your config file. This file will contain paths to your custom stage
 models, ws2lzfrontend.exe, SMB_LZ_Tool.exe, etc. Follow the instructions
 prompted by the Python file.
 
-Command Line input: python <enter Python file path here>
-
 NOTE: Your custom stages location has to have a very specific structure!
 You should have a parent folder that contains child folders - each
 child folder's name should be the name of a level.
 
-Ex:
+Example diagram:
 //Levels (parent)
-  //Levels//Wavy (child)
-  //Levels//Elastic_Platforms
-  //Levels//Confidence
+  //Wavy (child)
+  //Elastic_Platforms (child)
+  //Confidence (child)
 
-The path you enter in the Python program should be the path to the parent folder.
+The path you enter in config_writer.py should be the path to the parent folder.
+
 
 2. Stagefile Modding - stage_helper.py
-Enter command, follow instructions prompted by the program.
+Follow instructions prompted by the program.
 
-In order to copy your stage files to the //stage folder of your ISO root, you MUST
-have all three stage files in your child folder!!!!
 
 3. Overwrite config
 If you need to update your config file or if you screwed it up, run config.py to
 overwrite it.
 
 
-Happy automating :)
+Happy modding :)
 
 Pintobean
