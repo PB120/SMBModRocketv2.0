@@ -445,14 +445,35 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
             # stage model path
             source_models = [os.path.split(stage_gmatpl)[-1]]  # list of all model names. List starts with stage model
             files = 1
+            import pdb
+            #pdb.set_trace()
             while files < 2:
-                i_gmatpl = input("Path (WITHOUT file extension) to GMA/TPL to be merged with {}: ".format(stage_gmatpl))
+                i_gmatpl = input("Enter path (WITHOUT file extension) to GMA/TPL to be merged with {}. If model"
+                                 " is in {}, just provide the name of the file. ".format(stage_gmatpl, gmatool_dir))
+
+                #   If input is just a filename and these files both exist in gmatool.exe directory, add that path to
+                #   file
+
+                gt_path_gma = os.path.join(gmatool_dir, "{}.gma".format(i_gmatpl))
+                gt_path_tpl = os.path.join(gmatool_dir, "{}.tpl".format(i_gmatpl))
+
+                if os.path.isfile(gt_path_gma) and os.path.isfile(gt_path_tpl):
+                    i_gmatpl = os.path.join(gmatool_dir, i_gmatpl)
+                elif not os.path.isfile(gt_path_gma) and os.path.isfile(gt_path_tpl):
+                    print("\n{} not found.\n".format(gt_path_gma))
+                    continue
+                elif not os.path.isfile(gt_path_tpl) and os.path.isfile(gt_path_gma):
+                    print("\n{} not found.\n".format(gt_path_tpl))
+                    continue
+                else:
+                    print("\n{} and {} not found.\n".format(gt_path_gma, gt_path_tpl))
+                    continue
 
                 if i_gmatpl in source_files:
-                    print("Duplicate file. Try again.")
+                    print("\nDuplicate file. Try again.\n")
                     continue
                 elif not os.path.isfile("{}.gma".format(i_gmatpl)) or not os.path.isfile("{}.tpl".format(i_gmatpl)):
-                    print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
+                    print("{}.gma and/or {}.tpl not found.\n".format(i_gmatpl, i_gmatpl))
                     continue
                 else:
                     model = os.path.split(i_gmatpl)[-1]
@@ -471,13 +492,29 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
                                 break
                             else:
                                 i_gmatpl = input("GMA/TPL path ({}) WITHOUT file extension: ".format(files + 1))
+
+                                gt_path_gma = os.path.join(gmatool_dir, "{}.gma".format(i_gmatpl))
+                                gt_path_tpl = os.path.join(gmatool_dir, "{}.tpl".format(i_gmatpl))
+
+                                if os.path.isfile(gt_path_gma) and os.path.isfile(gt_path_tpl):
+                                    i_gmatpl = os.path.join(gmatool_dir, i_gmatpl)
+                                elif not os.path.isfile(gt_path_gma) and os.path.isfile(gt_path_tpl):
+                                    print("\n{} not found.\n".format(gt_path_gma))
+                                    continue
+                                elif not os.path.isfile(gt_path_tpl) and os.path.isfile(gt_path_gma):
+                                    print("\n{} not found.\n".format(gt_path_tpl))
+                                    continue
+                                else:
+                                    print("\n{} and {} not found.\n".format(gt_path_gma, gt_path_tpl))
+                                    continue
+
                                 if i_gmatpl in source_files:
                                     print("Duplicate file. Try again.")
                                     continue
-                                elif not os.path.isfile("{}.gma".format(i_gmatpl))\
-                                        or not os.path.isfile("{}.tpl".format(i_gmatpl)):
-                                    print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
-                                    continue
+                                #elif not os.path.isfile("{}.gma".format(i_gmatpl))\
+                                #   or not os.path.isfile("{}.tpl".format(i_gmatpl)):
+                                    #   print("{}.gma and/or {}.tpl not found.".format(i_gmatpl, i_gmatpl))
+                                    #   continue
                                 else:
                                     model = os.path.split(i_gmatpl)[-1]
                                     source_files.append(i_gmatpl)
@@ -486,6 +523,7 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
 
             #   Move all models to gmatool directory if they do not already exist in that directory
 
+            trash_files = []
             for model_path in source_files:
                 model = os.path.split(model_path)[-1]
                 src_gma = os.path.join("{}.gma".format(model_path))
@@ -495,17 +533,25 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
 
                 if not os.path.isfile(dst_gma):
                     shutil.copyfile(src_gma, dst_gma)
+                    trash_files.append(dst_gma)
+
                 elif src_gma != dst_gma:
                     os.remove(dst_gma)
                     shutil.copyfile(src_gma, dst_gma)
+                    trash_files.append(dst_gma)
+
                 else:
                     pass
 
                 if not os.path.isfile(dst_tpl):
                     shutil.copyfile(src_tpl, dst_tpl)
+                    trash_files.append(dst_tpl)
+
                 elif src_tpl != dst_tpl:
                     os.remove(dst_tpl)
                     shutil.copyfile(src_tpl, dst_tpl)
+                    trash_files.append(dst_tpl)
+
                 else:
                     pass
 
@@ -543,6 +589,10 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
             #   Rename new gma/tpl and move to destination
             os.rename(src_gma, dst_gma)
             os.rename(src_tpl, dst_tpl)
+
+            #   Remove files that were moved to gmatool.exe directory from other directories
+            for f in trash_files:
+                os.remove(f)
 
             os.chdir(config_writer.tool_path)
             break
@@ -609,7 +659,7 @@ def rebuild_iso(gcr_dir, iso_dir):
     iso_file_path = os.path.join(iso_dir, iso_file)
     root_dir = os.path.join(iso_dir, "root")
 
-    print("Rebuilding ISO...\n")
+    print("\nRebuilding ISO...DO NOT STOP THIS PROGRAM\n")
     subprocess.call([gcr_executable, root_dir, iso_file_path])
     print("DONE!")
 
