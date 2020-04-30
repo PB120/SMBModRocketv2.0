@@ -1,7 +1,6 @@
 import configparser
 import sys
 import os
-# from pdb import set_trace
 
 config = configparser.ConfigParser()
 parser = configparser.ConfigParser()
@@ -19,15 +18,16 @@ def config_init():
     """
 
     config_dict = {"your levels": ["Path to folder containing subfolders which are names of your levels: "],
-                   #"ws2": ["ws2lzfrontend.exe directory: ", "ws2lzfrontend.exe"],
-                   #"ws2ify": ["ws2ify path: ", "run.py"],
-                   #"bgtool": ["bgtool.exe directory: ", "bgtool.exe"],
-                   #"SMB_LZ_Tool": ["SMB_LZ_Tool path: ", "SMB_LZ_Tool.exe"],
-                   #"gmatool": ["gmatool.exe directory: ", "gmatool.exe"],
-                   #"GXModelViewer": ["GXModelViewer path: ", "GXModelViewer.exe"],
+                   "ws2": ["ws2lzfrontend.exe directory: ", "ws2lzfrontend.exe"],
+                   "ws2ify": ["ws2ify path: ", "run.py"],
+                   "bgtool": ["bgtool.exe directory: ", "bgtool.exe"],
+                   "SMBFogTool": ["SMBFogTool.exe directory: ", "SMBFogTool.exe"],
+                   "SMB_LZ_Tool": ["SMB_LZ_Tool path: ", "SMB_LZ_Tool.exe"],
+                   "gmatool": ["gmatool.exe directory: ", "gmatool.exe"],
+                   "GXModelViewer": ["GXModelViewer path: ", "GXModelViewer.exe"],
                    "GxModelViewerNoGUI": ["GxModelViewerNoGUI path: ", "GXModelViewer.exe"],
                    "iso": ["<gamefilename>.iso directory: ", ["root", ".iso"]],
-                   #"gcr": ["gcr.exe directory: ", "gcr.exe"]
+                   "gcr": ["gcr.exe directory: ", "gcr.exe"]
                    }
 
     return config_dict
@@ -167,4 +167,11 @@ def setup_config():
                 return new_config_dict
 
 
-setup_config()
+config["Paths/directories"] = setup_config()
+
+with open("./config.ini", 'w') as config_file:
+    config.write(config_file)
+
+parser.read("./config.ini")
+print(parser.sections())
+print(parser.get("Paths/directories", "SMBFogTool"))
