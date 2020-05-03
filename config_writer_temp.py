@@ -17,7 +17,7 @@ def config_init():
     If more than one flag exists, these will exist in the list as a SUBLIST of strings.
     """
 
-    config_dict = {"your levels": ["Path to folder containing subfolders which are names of your levels: "],
+    config_dict = {"Your levels": ["Path to folder containing subfolders which are names of your levels: "],
                    "ws2": ["ws2lzfrontend.exe directory: ", "ws2lzfrontend.exe"],
                    "ws2ify": ["ws2ify path: ", "run.py"],
                    "bgtool": ["bgtool.exe directory: ", "bgtool.exe"],
@@ -26,8 +26,8 @@ def config_init():
                    "gmatool": ["gmatool.exe directory: ", "gmatool.exe"],
                    "GXModelViewer": ["GXModelViewer path: ", "GXModelViewer.exe"],
                    "GxModelViewerNoGUI": ["GxModelViewerNoGUI path: ", "GXModelViewer.exe"],
-                   "iso": ["<gamefilename>.iso directory: ", ["root", ".iso"]],
-                   "gcr": ["gcr.exe directory: ", "gcr.exe"]
+                   "ISO": ["<gamefilename>.iso directory: ", ["root", ".iso"]],
+                   "GCR": ["gcr.exe directory: ", "gcr.exe"]
                    }
 
     return config_dict
@@ -167,11 +167,41 @@ def setup_config():
                 return new_config_dict
 
 
-config["Paths/directories"] = setup_config()
+#config["Paths/directories"] = setup_config()
 
-with open("./config.ini", 'w') as config_file:
-    config.write(config_file)
+#with open("./config.ini", 'w') as config_file:
+#    config.write(config_file)
 
 parser.read("./config.ini")
-print(parser.sections())
-print(parser.get("Paths/directories", "SMBFogTool"))
+
+
+class Paths(object):
+
+    def __init__(self, your_levels, ws2, ws2ify, bgtool, smb_fog_tool, smb_lz_tool, gmatool, gxmodelviewer,
+                 gxmodelviewernogui, iso, gcr):
+
+        self.your_levels = your_levels
+        self.ws2 = ws2
+        self.ws2ify = ws2ify
+        self.bgtool = bgtool
+        self.smb_fog_tool = smb_fog_tool
+        self.smb_lz_tool = smb_lz_tool
+        self.gmatool = gmatool
+        self.gxmodelviewer = gxmodelviewer
+        self.gxmodelviewernogui = gxmodelviewernogui
+        self.iso = iso
+        self.gcr = gcr
+
+
+paths = Paths(parser.get("Paths/directories", "Your levels"),
+              parser.get("Paths/directories", "ws2"),
+              parser.get("Paths/directories", "ws2ify"),
+              parser.get("Paths/directories", "bgtool"),
+              parser.get("Paths/directories", "SMBFogTool"),
+              parser.get("Paths/directories", "SMB_LZ_Tool"),
+              parser.get("Paths/directories", "gmatool"),
+              parser.get("Paths/directories", "gxmodelviewer"),
+              parser.get("Paths/directories", "gxmodelviewernogui"),
+              parser.get("Paths/directories", "iso"),
+              parser.get("Paths/directories", "gcr")
+              )
