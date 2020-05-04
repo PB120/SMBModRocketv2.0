@@ -1,10 +1,16 @@
 import configparser
 import sys
 import os
+from datetime import datetime
 
 config = configparser.ConfigParser()
 parser = configparser.ConfigParser()
 tool_path = sys.path[0]
+config_filename = "config.ini"
+last_modified = os.stat(config_filename).st_mtime
+last_modified = datetime.fromtimestamp(last_modified)
+print(last_modified)
+sys.exit()
 
 
 def config_init():
@@ -166,13 +172,32 @@ def setup_config():
             else:
                 return new_config_dict
 
+"""
+if modified() == 1:
+    while True:
+        user_choice = input("{} has been modified outside of program. Continue anyway? (Y/N) ").lower()
+        if not user_choice or user_choice != 'n' and user_choice != 'y':
+            print("Invalid input.")
+        elif user_choice == 'n':
+            sys.exit()
+        else:
+            break
 
-#config["Paths/directories"] = setup_config()
+elif modified() == 0:
+    pass
 
-#with open("./config.ini", 'w') as config_file:
-#    config.write(config_file)
+elif modified() == -1:
+    config["Paths/directories"] = setup_config()
+    with open(config_filename, 'w') as config_file:
+        config.write(config_file)
+"""
 
-parser.read("./config.ini")
+last_modified = datetime.fromtimestamp(os.stat(config_filename).st_mtime)
+config["Last Modified"] = {last_modified}
+config["Paths/directories"] = setup_config()
+
+
+parser.read(config_filename)
 
 
 class Paths(object):
@@ -205,3 +230,23 @@ paths = Paths(parser.get("Paths/directories", "Your levels"),
               parser.get("Paths/directories", "iso"),
               parser.get("Paths/directories", "gcr")
               )
+
+
+def modified():
+    """
+
+    :return: int 0 if config file exists and no changes have been made to the file,
+             int 1 if config file exists and was recently updated,
+             int -1 if config file does not exist
+    """
+    if os.path.isfile(config_filename):
+        parser.read(config_filename)
+        date_from_file = parser.get("Last Modified")
+        actual_date = datetime.fromtimestamp(os.stat(config_filename).st_mtime)
+        if date_from_file != actual_date:
+            return 1
+        else:
+            return 0
+
+    else:
+        return -1
