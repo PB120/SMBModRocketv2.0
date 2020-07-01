@@ -21,16 +21,16 @@ def config_init():
     """
 
     config_dict = {"Your levels": ["Path to folder containing subfolders which are names of your levels: "],
-                   "ws2": ["ws2lzfrontend.exe directory: ", "ws2lzfrontend.exe"],
-                   "ws2ify": ["ws2ify path: ", "run.py"],
-                   "bgtool": ["bgtool.exe directory: ", "bgtool.exe"],
-                   "SMBFogTool": ["SMBFogTool.exe directory: ", "SMBFogTool.exe"],
-                   "SMB_LZ_Tool": ["SMB_LZ_Tool path: ", "SMB_LZ_Tool.exe"],
-                   "gmatool": ["gmatool.exe directory: ", "gmatool.exe"],
-                   "GXModelViewer": ["GXModelViewer path: ", "GXModelViewer.exe"],
-                   "GxModelViewerNoGUI": ["GxModelViewerNoGUI path: ", "GXModelViewer.exe"],
-                   "ISO": ["<gamefilename>.iso directory: ", ["root", ".iso"]],
-                   "GCR": ["gcr.exe directory: ", "gcr.exe"]
+                   #"ws2": ["ws2lzfrontend.exe directory: ", "ws2lzfrontend.exe"],
+                   #"ws2ify": ["ws2ify path: ", "run.py"],
+                   #"bgtool": ["bgtool.exe directory: ", "bgtool.exe"],
+                   #"SMBFogTool": ["SMBFogTool.exe directory: ", "SMBFogTool.exe"],
+                   #"SMB_LZ_Tool": ["SMB_LZ_Tool path: ", "SMB_LZ_Tool.exe"],
+                   #"gmatool": ["gmatool.exe directory: ", "gmatool.exe"],
+                   #"GXModelViewer": ["GXModelViewer path: ", "GXModelViewer.exe"],
+                   #"GxModelViewerNoGUI": ["GxModelViewerNoGUI path: ", "GXModelViewer.exe"],
+                   #"ISO": ["<gamefilename>.iso directory: ", ["root", ".iso"]],
+                   #"GCR": ["gcr.exe directory: ", "gcr.exe"]
                    }
 
     return config_dict
@@ -101,7 +101,6 @@ def setup_config():
             :param val: value from config_init dict
             :param flag_list: files/folders that should exist in user inputted directory (list)
             :return: directory/path from user input
-            :return:
             """
             while True:
                 user_input = os.path.expanduser(input(val[0]))
@@ -172,12 +171,26 @@ def setup_config():
 
 def modified():
     """
-
-    :return: int 0 if config file exists and no changes have been made to the file,
-             int 1 if config file exists and was recently updated,
+    Creates last_edited.txt (if it doesn't exist) and returns an integer
+    :return: int 0 if config file exists and no changes have been made to the file (date in last_edited.txt matches
+    actual date of file's last modification),
+             int 1 if config file exists and was recently updated (last_edited.txt does not match actual last mod date),
              int -1 if config file does not exist
     """
-    if os.path.isfile(config_filename):
+    # If config does not exist
+    if not os.path.isfile(config_filename):
+        return -1
+
+    # Create date checking file and write in config's last modified date
+    # if config exists but date checking file does not exist
+    elif not os.path.isfile(edit_date_checker):
+        actual_date = str(datetime.fromtimestamp(os.stat(config_filename).st_mtime))
+        with open(edit_date_checker, 'w') as edc:
+            edc.write(actual_date)
+        return 0
+
+    # If both files exist, compare date in edit_date_checker to config file's actual last mod date
+    else:
         actual_date = str(datetime.fromtimestamp(os.stat(config_filename).st_mtime))
         with open(edit_date_checker, 'r') as edc_read:
             date_from_file = edc_read.readline()
@@ -186,65 +199,121 @@ def modified():
         else:
             return 0
 
-    else:
-        return -1
+# Test set 1
 
+# Test 1: config file does not exist (D)
+# Test 2: config file exists, date check file does not (D)
+# Test 3: Both files exist (D)
+    # a: date in date check file doesn't match actual mod date (D)
+    # b: date in date check file matches actual mod date (D)
 
+# Test set 2 using modified() when executing __main__
+
+# Test 1: config file does not exist (D)
+# Test 2: config file exists, date check file does not (D)
+# Test 3: Both files exist (D)
+    # a: date in date check file doesn't match actual mod date (D)
+    # b: date in date check file matches actual mod date (D)
+
+# Test set 2 using modified() when executing config_writer_temp.py in another python file
 print(modified())
-sys.exit()
-config["Last Modified"] = {"datetime": date_modified}
-config["Paths/directories"] = setup_config()
-print(config.sections())
-sys.exit()
-
-if modified() == 1:
-    while True:
-        user_choice = input("{} has been modified outside of program. Continue anyway? (Y/N) ").lower()
-        if not user_choice or user_choice != 'n' and user_choice != 'y':
-            print("Invalid input.")
-        elif user_choice == 'n':
-            sys.exit()
-        else:
-            break
-
-elif modified() == 0:
-    pass
-
-elif modified() == -1:
-    config["Paths/directories"] = setup_config()
-    with open(config_filename, 'w') as config_file:
-        config.write(config_file)
-
-parser.read(config_filename)
 
 
-class Paths(object):
-
-    def __init__(self, your_levels, ws2, ws2ify, bgtool, smb_fog_tool, smb_lz_tool, gmatool, gxmodelviewer,
-                 gxmodelviewernogui, iso, gcr):
-
-        self.your_levels = your_levels
-        self.ws2 = ws2
-        self.ws2ify = ws2ify
-        self.bgtool = bgtool
-        self.smb_fog_tool = smb_fog_tool
-        self.smb_lz_tool = smb_lz_tool
-        self.gmatool = gmatool
-        self.gxmodelviewer = gxmodelviewer
-        self.gxmodelviewernogui = gxmodelviewernogui
-        self.iso = iso
-        self.gcr = gcr
+def date_checker():
+    """
+    Write in config's date last modified in last_edited file
+    :return: None
+    """
+    with open(edit_date_checker, 'w') as edc:
+        edc.write(str(datetime.fromtimestamp(os.stat(config_filename).st_mtime)))
 
 
-paths = Paths(parser.get("Paths/directories", "Your levels"),
-              parser.get("Paths/directories", "ws2"),
-              parser.get("Paths/directories", "ws2ify"),
-              parser.get("Paths/directories", "bgtool"),
-              parser.get("Paths/directories", "SMBFogTool"),
-              parser.get("Paths/directories", "SMB_LZ_Tool"),
-              parser.get("Paths/directories", "gmatool"),
-              parser.get("Paths/directories", "gxmodelviewer"),
-              parser.get("Paths/directories", "gxmodelviewernogui"),
-              parser.get("Paths/directories", "iso"),
-              parser.get("Paths/directories", "gcr")
-              )
+import pdb
+pdb.set_trace()
+if __name__ == '__main__':
+
+    if modified() == -1:
+        config["Paths/directories"] = setup_config()
+        with open(config_filename, 'w') as config_file:
+            config.write(config_file)
+            date_checker()
+
+    elif modified() == 0:
+        while True:
+            user_choice = input("Update config? (Y/N) ").lower()
+            if not user_choice or user_choice != 'n' and user_choice != 'y':
+                print("Invalid input.")
+            elif user_choice == 'n':
+                sys.exit()
+            else:
+                config["Paths/directories"] = setup_config()
+                with open(config_filename, 'w') as config_file:
+                    config.write(config_file)
+                date_checker()
+                break
+    else:
+        while True:
+            user_choice = input("Config has been modified outside of program. Continue anyway? (Y/N) ").lower()
+            if not user_choice or user_choice != 'n' and user_choice != 'y':
+                print("Invalid input.")
+            elif user_choice == 'n':
+                sys.exit()
+            else:
+                date_checker()
+                break
+
+else:
+
+    if modified() == 1:
+        while True:
+            user_choice = input("Config has been modified outside of program. Continue anyway? (Y/N) ").lower()
+            if not user_choice or user_choice != 'n' and user_choice != 'y':
+                print("Invalid input.")
+            elif user_choice == 'n':
+                sys.exit()
+            else:
+                date_checker()
+                break
+
+    elif modified() == 0:
+        pass
+
+    else:
+        config["Paths/directories"] = setup_config()
+        with open(config_filename, 'w') as config_file:
+            config.write(config_file)
+            date_checker()
+
+    parser.read(config_filename)
+
+
+    class Paths(object):
+
+        def __init__(self, your_levels, ws2, ws2ify, bgtool, smb_fog_tool, smb_lz_tool, gmatool, gxmodelviewer,
+                     gxmodelviewernogui, iso, gcr):
+
+            self.your_levels = your_levels
+            self.ws2 = ws2
+            self.ws2ify = ws2ify
+            self.bgtool = bgtool
+            self.smb_fog_tool = smb_fog_tool
+            self.smb_lz_tool = smb_lz_tool
+            self.gmatool = gmatool
+            self.gxmodelviewer = gxmodelviewer
+            self.gxmodelviewernogui = gxmodelviewernogui
+            self.iso = iso
+            self.gcr = gcr
+"""
+    paths = Paths(parser.get("Paths/directories", "Your levels"),
+                  parser.get("Paths/directories", "ws2"),
+                  parser.get("Paths/directories", "ws2ify"),
+                  parser.get("Paths/directories", "bgtool"),
+                  parser.get("Paths/directories", "SMBFogTool"),
+                  parser.get("Paths/directories", "SMB_LZ_Tool"),
+                  parser.get("Paths/directories", "gmatool"),
+                  parser.get("Paths/directories", "gxmodelviewer"),
+                  parser.get("Paths/directories", "gxmodelviewernogui"),
+                  parser.get("Paths/directories", "iso"),
+                  parser.get("Paths/directories", "gcr")
+                  )
+"""
