@@ -1,273 +1,299 @@
-"""Creates a new config file"""
-
-import os
+import configparser
 import sys
-import glob
+import os
+from datetime import datetime
+
+config = configparser.ConfigParser()
+parser = configparser.ConfigParser()
 tool_path = sys.path[0]
-filename = os.path.join(tool_path, "config.txt")
-file_lst = ["ws2lzfrontend.exe", "SMB_LZ_Tool.exe", "bgtool.exe", "gmatool.exe",
-            "GxModelViewer.exe", "GxModelViewer.exe", "gcr.exe"]
+config_filename = "config.ini"
+edit_date_checker = "last_edited.txt"
 
 
-def grab_dirs(config_file=filename):
-    """
-    Grabs the directories given in config file
+class Paths(object):
 
-    :param config_file: Automation tool config file name and path (str)
-    :return: Dictionary (keys as generic names describing directories: values as the directories)
-    """
-    dir_dict = {}
-
-    # Return None if config file doesn't exist
-    if not os.path.isfile(config_file):
-        return dir_dict
-
-    with open(config_file) as f_in:
-        lines = f_in.read().splitlines()
-        start_index = lines.index("YOUR DIRECTORIES")
-        for ele in range(start_index + 1):
-            lines.pop(0)
-        for line in lines:
-            dir_name = line.split("=")[0]
-            dir_str = line.split("=")[1].split("\"")[1]
-            dir_dict[dir_name] = dir_str
-
-    return dir_dict
+    def __init__(self, your_levels, ws2, ws2ify, bgtool, smb_fog_tool, smb_lz_tool, gmatool, gxmodelviewer,
+                 gxmodelviewernogui, iso, gcr):
+        self.your_levels = your_levels
+        self.ws2 = ws2
+        self.ws2ify = ws2ify
+        self.bgtool = bgtool
+        self.smb_fog_tool = smb_fog_tool
+        self.smb_lz_tool = smb_lz_tool
+        self.gmatool = gmatool
+        self.gxmodelviewer = gxmodelviewer
+        self.gxmodelviewernogui = gxmodelviewernogui
+        self.iso = iso
+        self.gcr = gcr
 
 
-def default_config(f_name):
-    """
-    Generates a default config file
-    :param f_name: config file name
-    :return: Nothing
-    """
-    with open(f_name, "w+") as f_out:
-        f_out.write("Directory descriptions\n"
-                    "levels: Directory of your custom SMB2 level folders\n"
-                    "ws2lzfrontend: Directory of ws2lzfrontend.exe\n"
-                    "ws2ify: Directory of ws2ify run.py file\n"
-                    "bgtool: Directory of bgtool.exe\n"
-                    "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
-                    "gmatool: Directory of gmatool.exe\n"
-                    "GXModelViewer: Directory of GxModelViewer.exe\n"
-                    "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
-                    "iso: Directory of ISO\n"
-                    "gcr: Directory of gcr.exe\n"
-                    "\n"
-                    "YOUR DIRECTORIES\n"
-                    "levels=\"Enter your directory here\"\n"
-                    "ws2lzfrontend=\"Enter your directory here\"\n"
-                    "ws2ify=\"Enter your directory here\"\n"
-                    "bgtool=\"Enter your directory here\"\n"
-                    "SMB_LZ_Tool=\"Enter your directory here\"\n"
-                    "gmatool=\"Enter your directory here\"\n"
-                    "GXModelViewer=\"Enter your directory here\"\n"
-                    "GxModelViewerNoGUI=\"Enter your directory here\"\n"
-                    "iso=\"Enter your directory here\"\n"
-                    "gcr=\"Enter your directory here\"\n"
-                    )
-
-
-def map_files(f_lst, dirs_dict):
+def config_init():
     """
 
-    :param f_lst: list of files
-    :param dirs_dict: Dictionary (keys as generic names describing directories: values as directories)
-    :return: Dictionary (keys as generic names describing directories: values as either file names or "")
-    """
-    file_dict = {}
-    for key in dirs_dict.keys():
-        file_count = 0
-        for file in f_lst:
-            key_no_paren = key.split("(")[0]
-            if key_no_paren.lower() in file.lower() or file.lower().split('.')[0] in key_no_paren.lower():
-                file_dict[key] = file
-                file_count += 1
-        if file_count == 0:
-            file_dict[key] = ""
-    return file_dict
-
-
-def config_input(m_files):
-    """
-    :param m_files: dictionary returned by map_files function
-    :return: Dictionary (keys as generic names describing directories: values as the directories)
+    :return: dictionary: keys are names relevant to specific file/folder path/directory.
+    Values are lists containing short descriptions about the file/folder path/directory
+    and may contain flags. The flags are files/folders that are required to exist in a specific path/directory
+    in setup_config(). If there is one flag, it will exist in the list as a STRING.
+    If more than one flag exists, these will exist in the list as a SUBLIST of strings.
     """
 
-    def dir_case_sensitive(path):
-        """
+    config_dict = {"Your levels": ["Path to folder containing subfolders which are names of your levels: "],
+                   "ws2": ["ws2lzfrontend.exe path: ", "ws2lzfrontend.exe"],
+                   "ws2ify": ["ws2ify path: ", "run.py"],
+                   "bgtool": ["bgtool.exe path: ", "bgtool.exe"],
+                   "SMBFogTool": ["SMBFogTool.exe path: ", "SMBFogTool.exe"],
+                   "SMB_LZ_Tool": ["SMB_LZ_Tool path: ", "SMB_LZ_Tool.exe"],
+                   "gmatool": ["gmatool.exe path: ", "gmatool.exe"],
+                   "GXModelViewer": ["GXModelViewer path: ", "GXModelViewer.exe"],
+                   "GxModelViewerNoGUI": ["GxModelViewerNoGUI path: ", "GXModelViewer.exe"],
+                   "ISO": ["<gamefilename>.iso path: ", ["root", ".iso"]],
+                   "GCR": ["gcr.exe path: ", "gcr.exe"]
+                   }
 
-        :param path: File/folder path
-        :return: Case-sensitive path (str)
-        """
+    return config_dict
 
-        dirs_list = path.split('\\')
-        # disk letter
-        test_path = [dirs_list[0].upper()]
-        for d in dirs_list[1:]:
-            test_path += ["%s[%s]" % (d[:-1], d[-1])]
-        res = glob.glob('\\'.join(test_path))
-        if not res:
-            # File not found
-            return None
-        return res[0]
+
+def setup_config():
+    """
+
+    :return: dict
+    """
 
     while True:
-        new_dict = {}
-        for key, value in m_files.items():
+
+        new_config_dict = {}
+
+        def flag_0(val):
+            """
+            Check if inputted directory/path exists (No flags)
+            :param val: value from config_init
+            :return: directory/path from user input
+            """
             while True:
-                if key == "levels":
-                    new_dir = input("Please input the directory "
-                                    "that contains all the folders of your custom stages: ")
-                elif key == "iso":
-                    new_dir = input("Please input the directory of your ISO disc file: ")
-                elif key == "GXModelViewer" or key == "GxModelViewerNoGUI":
+                user_input = os.path.expanduser(input(val[0]))
+
+                # Check if inputted directory/path exists
+
+                if not os.path.isdir(user_input):
+                    print("Invalid path.")
+                    continue
+                else:
+                    break
+            return user_input
+
+        def flag_1(val, flag):
+            """
+            Check if inputted directory/path exists (1 flag)
+            :param val: value from config_init dict
+            :param flag: file/folder that should exist in user inputted directory (str)
+            :return: directory/path from user input
+            """
+            while True:
+                user_input = os.path.expanduser(input(val[0]))
+
+                # Check if inputted directory/path exists
+
+                if not os.path.isdir(user_input):
+                    print("Invalid path.")
+                else:
+                    path_w_flag = os.path.join(user_input, flag)
+                    all_files = os.listdir(user_input)
+                    flag_found = False
+                    for f in all_files:
+                        if f.endswith(flag):
+                            flag_found = True
+
+                    # Check if file/folder/file extension flag exists in user inputted path/directory
+
+                    if not os.path.isdir(path_w_flag) and not os.path.isfile(path_w_flag) and not flag_found:
+                        print("Missing file/folder/file extension: {}".format(flag))
+                    else:
+                        break
+
+            return user_input
+
+        def flag_m(val, flag_list):
+            """
+            Check if inputted directory/path exists (2 or more flags)
+            :param val: value from config_init dict
+            :param flag_list: files/folders that should exist in user inputted directory (list)
+            :return: directory/path from user input
+            """
+            while True:
+                user_input = os.path.expanduser(input(val[0]))
+
+                # Check if inputted directory/path exists
+
+                if not os.path.isdir(user_input):
+                    print("Invalid path.")
+                else:
+                    break
+
+            while True:
+                missing_flags = []
+                for flag in flag_list:
+                    flag_found = False
+                    all_files = os.listdir(user_input)
+
+                    for f in all_files:
+                        if f.endswith(flag):
+                            flag_found = True
+
+                    if not flag_found:
+                        missing_flags.append(flag)
+
+                if missing_flags:
+
+                    [print("File/file extension/folder \"{}\" not found.".format(flag)) for flag in missing_flags]
                     while True:
-                        new_dir = input("Please input the {} directory: ".format(key))
-                        gx_path = new_dir
-                        if os.path.basename(gx_path).lower() != key.lower():
-                            print("Incorrect directory for {}! Try again.".format(key))
+                        user_input = input("Re-enter path/directory: ")
+                        if not os.path.isdir(user_input):
+                            print("Invalid input.")
                         else:
                             break
 
-                elif key == "ws2ify":
-                    new_dir = input("Please input the directory "
-                                    "that contains the run.py file for ws2ify: ")
-                    if not os.path.isfile(os.path.join(new_dir, "run.py")):
-                        print("Directory does not contain run.py. Try again.")
-                        continue
-
-                elif key == "bgtool":
-                    new_dir = input("Please input the directory "
-                                    "that contains the bg files including bgtool.exe: ")
-                    if not os.path.isfile(os.path.join(new_dir, "bgtool.exe")):
-                        print("Directory does not contain run.py. Try again.")
-                        continue
-
                 else:
-                    new_dir = input("Please input the {} directory: ".format(key))
-
-                # Checking for invalid file paths or directories.
-
-                if not os.path.isdir(new_dir):
-                    print("\"{}\" is not a valid {} directory! Try again.".format(new_dir, key))
-
-                # If valid path, make sure the path is the one that has the necessary file
-
-                elif value != "" and not os.path.isfile(os.path.join(new_dir, value)):
-                    print("The file {} does not exist in {}! Try again.".format(value, new_dir))
-
-                else:
-                    new_dict[key] = dir_case_sensitive(new_dir)
                     break
 
-        print("\n")
-        for key_2, value_2 in new_dict.items():
-            print("{} directory:".format(key_2), value_2)
+            return user_input
+
+        for k, v in config_init().items():
+
+            if len(v) == 1:
+                entry = flag_0(v)
+                new_config_dict[k] = entry
+
+            elif len(v) == 2 and type(v[1]) == str:
+
+                entry = flag_1(v, v[1])
+                new_config_dict[k] = entry
+
+            elif len(v) == 2 and type(v[1]) == list:
+
+                entry = flag_m(v, v[1])
+                new_config_dict[k] = entry
+
+        print("\nYour entries: \n")
+        [print("{}:".format(k), v) for k, v in new_config_dict.items()]
+
         while True:
-            confirm_setup = input("\n\nPlease double check to see if the directories you entered are correct (ABOVE).\n"
-                                  "Enter Y if everything is correct, N to rewrite your directories: ")
-            if confirm_setup == "":
-                print("Input not recognized. Try again.")
-                continue
-
-            elif confirm_setup.lower()[0] == "y":
-                return new_dict
-
-            elif confirm_setup.lower()[0] == "n":
+            redo_setup = input("\nWrite config? (Y if your entries are all correct, N if you want to redo them): ")
+            if redo_setup.lower() != 'y' and redo_setup.lower() != 'n':
+                print("Invalid input.")
+            elif redo_setup.lower() == 'n':
                 break
-
             else:
-                print("Input not recognized. Try again.")
-                continue
+                return new_config_dict
 
 
-def write_config():
+def modified():
     """
-    Generates config file with user-specified directories
-
-    :return: Nothing
+    Creates last_edited.txt (if it doesn't exist) and returns an integer
+    :return: int 0 if config file exists and no changes have been made to the file (date in last_edited.txt matches
+    actual date of file's last modification),
+             int 1 if config file exists and was recently updated (last_edited.txt does not match actual last mod date),
+             int -1 if config file does not exist
     """
-    with open(filename, "w+") as f2_out:
-        f2_out.write("Directory descriptions\n"
-                     "levels: Directory of your custom SMB2 level folders\n"
-                     "ws2lzfrontend: Directory of ws2lzfrontend.exe\n"
-                     "ws2ify: Directory of run.py file in ws2ify folder\n"
-                     "bgtool: Directory of bg files including bgtool.exe\n"
-                     "SMB_LZ_Tool: Directory of SMB_LZ_Tool.exe\n"
-                     "gmatool: Directory of gmatool.exe\n"
-                     "GXModelViewer: Directory of GxModelViewer.exe\n"
-                     "GxModelViewerNoGUI: Directory of GxModelViewer.exe (NOGUI)\n"
-                     "iso: Directory of ISO\n"
-                     "gcr: Directory of gcr.exe\n"
-                     "\n"
-                     "YOUR DIRECTORIES\n")
-        for k, v in config_dict.items():
-            f2_out.write("{}=\"{}\"\n".format(k, v))
+    # If config does not exist
+    if not os.path.isfile(config_filename):
+        return -1
 
-    print("\nConfig file successfully built.")
+    # Create date checking file and write in config's last modified date
+    # if config exists but date checking file does not exist
+    elif not os.path.isfile(edit_date_checker):
+        actual_date = str(datetime.fromtimestamp(os.stat(config_filename).st_mtime))
+        with open(edit_date_checker, 'w') as edc:
+            edc.write(actual_date)
+        return 0
+
+    # If both files exist, compare date in edit_date_checker to config file's actual last mod date
+    else:
+        actual_date = str(datetime.fromtimestamp(os.stat(config_filename).st_mtime))
+        with open(edit_date_checker, 'r') as edc_read:
+            date_from_file = edc_read.readline()
+        if date_from_file != actual_date:
+            return 1
+        else:
+            return 0
+
+# Test set 1
+
+# Test 1: config file does not exist (D)
+# Test 2: config file exists, date check file does not (D)
+# Test 3: Both files exist (D)
+    # a: date in date check file doesn't match actual mod date (D)
+    # b: date in date check file matches actual mod date (D)
+
+# Test set 2 using modified() when executing __main__
+
+# Test 1: config file does not exist (D)
+# Test 2: config file exists, date check file does not (D)
+# Test 3: Both files exist (D)
+    # a: date in date check file doesn't match actual mod date (D)
+    # b: date in date check file matches actual mod date (D)
+
+# Test set 2 using modified() when executing config_writer_temp.py in another python file
 
 
-config_exists = os.path.isfile(filename)
+def date_checker():
+    """
+    Write in config's date last modified in last_edited file
+    :return: None
+    """
+    with open(edit_date_checker, 'w') as edc:
+        edc.write(str(datetime.fromtimestamp(os.stat(config_filename).st_mtime)))
 
-# If the config does not exist
-if not config_exists:
-    default_config(filename)
-    dirs = grab_dirs()
-    f_dict = map_files(file_lst, dirs)
-    config_dict = config_input(f_dict)
-    write_config()
 
-# If the config's directories are default values ("Enter your directory here")
-elif "Enter your directory here" in grab_dirs().values():
-    default_config(filename)
-    dirs = grab_dirs()
-    f_dict = map_files(file_lst, dirs)
-    config_dict = config_input(f_dict)
-    write_config()
+if __name__ == '__main__':
 
-# If the config does exist, but >=1 directories were edited outside of the program and are incorrect
-else:
-    incorrect_dir = False
-    dirs = grab_dirs()
-    for dirs_key, dirs_value in dirs.items():
-        if not os.path.isdir(dirs_value):
-            print("\"{}\" is not a valid directory for {}!".format(dirs_value, dirs_key))
-            incorrect_dir = True
+    def exec_main_block():
+        """
+        Executes all functions above
+        :return: None
+        """
 
-    if incorrect_dir:
-        while True:
-            rewrite_input = input("Errors in config file. Overwrite config? (Y/N) ")
-            if rewrite_input == "":
-                print("Input not recognized! Try again.")
-            elif rewrite_input.lower()[0] != "y" and rewrite_input.lower()[0] != "n":
-                print("Input not recognized! Try again.")
-            elif rewrite_input.lower()[0] == "n":
-                sys.exit(0)
-            else:
-                default_config(filename)
-                grab_dirs()
-                f_dict = map_files(file_lst, dirs)
-                config_dict = config_input(f_dict)
-                write_config()
-                break
+        if modified() == -1:
+            config["Paths/directories"] = setup_config()
+            with open(config_filename, 'w') as config_file:
+                config.write(config_file)
+                date_checker()
 
-    # If the config does exist and directories are correct
-
-    if not incorrect_dir:
-        if __name__ == '__main__':
+        else:
             while True:
-                overwrite_input = input("Config file already built! Overwrite? (Y/N) ")
-                if overwrite_input == "":
-                    print("Input not recognized! Try again.")
-                elif overwrite_input.lower()[0] != "y" and overwrite_input.lower()[0] != "n":
-                    print("Input not recognized! Try again.")
-                elif overwrite_input.lower()[0] == "n":
-                    sys.exit(0)
+                user_choice = input("Update config? (Y/N) ").lower()
+                if not user_choice or user_choice != 'n' and user_choice != 'y':
+                    print("Invalid input.")
+                elif user_choice == 'n':
+                    sys.exit()
                 else:
-                    default_config(filename)
-                    dirs = grab_dirs()
-                    f_dict = map_files(file_lst, dirs)
-                    config_dict = config_input(f_dict)
-                    write_config()
+                    config["Paths/directories"] = setup_config()
+                    with open(config_filename, 'w') as config_file:
+                        config.write(config_file)
+                    date_checker()
                     break
+
+    exec_main_block()
+
+else:
+
+    def exec_main_block():
+
+        if modified() == 1:
+            while True:
+                user_choice = input("Config has been modified outside of program. Continue anyway? (Y/N) ").lower()
+                if not user_choice or user_choice != 'n' and user_choice != 'y':
+                    print("Invalid input.")
+                elif user_choice == 'n':
+                    sys.exit()
+                else:
+                    date_checker()
+                    break
+
+        elif modified() == 0:
+            pass
+
+        else:
+            config["Paths/directories"] = setup_config()
+            with open(config_filename, 'w') as config_file:
+                config.write(config_file)
+                date_checker()
