@@ -7,8 +7,28 @@ import xml.etree.ElementTree as et
 import config_writer
 import re
 import time
+import config_writer as cw
+import configparser
 
-bg_dir = os.path.expanduser("F:\SMBCustomLevelStuff\\bgtool\\bgfiles")
+config = configparser.ConfigParser()
+parser = configparser.ConfigParser()
+
+cw.exec_main_block()
+parser.read("config.ini")
+
+
+paths = cw.Paths(parser.get("Paths/directories", "levels"),
+                 parser.get("Paths/directories", "ws2"),
+                 parser.get("Paths/directories", "ws2ify"),
+                 parser.get("Paths/directories", "bgtool"),
+                 parser.get("Paths/directories", "SMBFogTool"),
+                 parser.get("Paths/directories", "SMB_LZ_Tool"),
+                 parser.get("Paths/directories", "gmatool"),
+                 parser.get("Paths/directories", "gxmodelviewer"),
+                 parser.get("Paths/directories", "gxmodelviewernogui"),
+                 parser.get("Paths/directories", "iso"),
+                 parser.get("Paths/directories", "gcr")
+                 )
 
 
 def get_file(path, extension, override=False):
@@ -706,83 +726,66 @@ def select_cmd():
 
 if __name__ == '__main__':
 
-    # Run config_writer.py
-    config_writer
-
-    dirs = config_writer.grab_dirs()
-    incorrect_dir = False
-    for key, value in dirs.items():
-        if not os.path.isdir(value):
-            print("\n\"{}\" is not a valid directory for {}".format(value, key))
-            incorrect_dir = True
-    if incorrect_dir:
-        print("Quitting program...")
-        sys.exit(1)
-
     cmd = select_cmd()
     if cmd == '1':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
 
-        x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-                            dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
+        x = stage_def_to_lz(stage_name, stage_number, paths.levels,
+                            paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
 
-        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
-        use_gmatool(stage_name, stage_number, dirs["levels"], dirs["gmatool"])
-        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
-        rebuild_iso(dirs["gcr"], dirs["iso"])
+        gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
+        use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
+        rebuild_iso(paths.gcr, paths.iso)
 
     elif cmd == '2':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
 
-        x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-                            dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
+        x = stage_def_to_lz(stage_name, stage_number, paths.levels,
+                            paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
 
-        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
-        use_gmatool(stage_name, stage_number, dirs["levels"], dirs["gmatool"])
-        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
+        gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
+        use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
 
     elif cmd == '3':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
 
-        x = stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-                            dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"], return_xml=True)
+        x = stage_def_to_lz(stage_name, stage_number, paths.levels,
+                            paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
 
-        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"], in_xml=x)
-        use_gmatool(stage_name, stage_number, dirs["levels"], dirs["gmatool"])
+        gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
+        use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
 
     elif cmd == '4':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
-        stage_def(stage_name, dirs["levels"], dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["bgtool"])
+        stage_def(stage_name, paths.levels, paths.ws2ify, paths.ws2, paths.bgtool)
 
     elif cmd == '5':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
-        comp_lz(stage_name, stage_number, dirs["levels"], dirs["SMB_LZ_Tool"])
+        comp_lz(stage_name, stage_number, paths.levels, paths.smb_lz_tool)
 
     elif cmd == '6':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
-        stage_def_to_lz(stage_name, stage_number, dirs["levels"],
-                        dirs["ws2ify"], dirs["ws2lzfrontend"], dirs["SMB_LZ_Tool"])
+        stage_def_to_lz(stage_name, stage_number, paths.levels,
+                        paths.ws2ify, paths.ws2, paths.smb_lz_tool)
 
     elif cmd == '7':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
-        gmatpl(stage_name, stage_number, dirs["levels"], dirs["GXModelViewer"], dirs["GxModelViewerNoGUI"])
-        use_gmatool(stage_name, stage_number, dirs["levels"], dirs["gmatool"])
+        gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui)
+        use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
 
     elif cmd == '8':
-        stage_name = stage_name(dirs["levels"])
+        stage_name = stage_name(paths.levels)
         stage_number = stage_num()
-        replace_stage_files(stage_name, stage_number, dirs["levels"], dirs["iso"])
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
 
     elif cmd == '9':
-        rebuild_iso(dirs["gcr"], dirs["iso"])
-
-    else:
-        print("Problem with select_cmd function. Please double check the code.")
-        sys.exit(1)
+        rebuild_iso(paths.gcr, paths.iso)

@@ -12,9 +12,9 @@ edit_date_checker = "last_edited.txt"
 
 class Paths(object):
 
-    def __init__(self, your_levels, ws2, ws2ify, bgtool, smb_fog_tool, smb_lz_tool, gmatool, gxmodelviewer,
+    def __init__(self, levels, ws2, ws2ify, bgtool, smb_fog_tool, smb_lz_tool, gmatool, gxmodelviewer,
                  gxmodelviewernogui, iso, gcr):
-        self.your_levels = your_levels
+        self.levels = levels
         self.ws2 = ws2
         self.ws2ify = ws2ify
         self.bgtool = bgtool
@@ -37,7 +37,7 @@ def config_init():
     If more than one flag exists, these will exist in the list as a SUBLIST of strings.
     """
 
-    config_dict = {"Your levels": ["Path to folder containing subfolders which are names of your levels: "],
+    config_dict = {"levels": ["Path to folder containing subfolders which are names of your levels: "],
                    "ws2": ["ws2lzfrontend.exe path: ", "ws2lzfrontend.exe"],
                    "ws2ify": ["ws2ify path: ", "run.py"],
                    "bgtool": ["bgtool.exe path: ", "bgtool.exe"],
