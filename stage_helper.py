@@ -3,7 +3,7 @@ import subprocess
 import sys
 import os
 import shutil
-import xml.etree.ElementTree as et
+import xml.etree.ElementTree as Et
 import config_writer
 import re
 import time
@@ -78,7 +78,7 @@ def get_obj(xml_path):
     :return: obj filename
     """
     file = xml_path
-    tree = et.parse(file)
+    tree = Et.parse(file)
     root = tree.getroot()
     obj = ""
 
