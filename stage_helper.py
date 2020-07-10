@@ -27,7 +27,10 @@ paths = cw.Paths(parser.get("Paths/directories", "levels"),
                  parser.get("Paths/directories", "gxmodelviewer"),
                  parser.get("Paths/directories", "gxmodelviewernogui"),
                  parser.get("Paths/directories", "iso"),
-                 parser.get("Paths/directories", "gcr")
+                 parser.get("Paths/directories", "root"),
+                 parser.get("Paths/directories", "gcr"),
+                 parser.get("Paths/directories", "playtest"),
+                 parser.get("Paths/directories", "Dolphin")
                  )
 
 
@@ -624,7 +627,7 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
             break
 
 
-def replace_stage_files(s_name, s_number, stages_dir, iso_dir):
+def replace_stage_files(s_name, s_number, stages_dir, root):
     """
     Copies stage files from //<stagename> folder to //stages folder in ISO
     if and only if all three stage files (STAGEXXX.lz, stXXX.gma, stXXX.gma) exist in //<stagename>.
@@ -632,12 +635,12 @@ def replace_stage_files(s_name, s_number, stages_dir, iso_dir):
     :param s_name: Stage name passed in from stage_name function
     :param s_number: Stage number passed in from stage_number function
     :param stages_dir: Directory of stage folders
-    :param iso_dir: Game disc file directory
+    :param root: ISO root folder path
     :return: None
     """
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
-    iso_stages_dir = os.path.expanduser(os.path.join(iso_dir, "root//stage"))
+    iso_stages_dir = os.path.expanduser(os.path.join(root, "stage"))
 
     src_lz = os.path.join(stage_dir, "STAGE{}.lz".format(s_number))
     src_gma = os.path.join(stage_dir, "st{}.gma".format(s_number))
@@ -673,7 +676,7 @@ def rebuild_iso(gcr_dir, iso_dir):
     """
     Run gcr.exe
 
-    Must type either"Y" or "y" to open GCR
+    Must type either "Y" or "y" to open GCR
     :param gcr_dir: Directory of gcr.exe file
     :param iso_dir: Directory of ISO disc file
     :return: None
@@ -683,11 +686,33 @@ def rebuild_iso(gcr_dir, iso_dir):
     iso_file = get_file(iso_dir, ".iso", override=True)
 
     iso_file_path = os.path.join(iso_dir, iso_file)
-    root_dir = os.path.join(iso_dir, "root")
+    root_dir = os.path.join(iso_dir, "files")
 
     print("\nRebuilding ISO...DO NOT STOP THIS PROGRAM\n")
     subprocess.call([gcr_executable, root_dir, iso_file_path])
     print("DONE!")
+
+
+def playtest(dol_executable, md_path):
+    """
+
+    :param dol_executable: Dolphin.exe path
+    :param md_path: main.dol path
+    :return: None
+    """
+    dol_executable = os.path.join(dol_executable, "Dolphin.exe")
+    md_path = os.path.join(md_path, "main.dol")
+
+    while True:
+        exec_option = input("Render game with GUI? (Y/N) ").lower()
+        if exec_option != 'y' and exec_option != 'n':
+            print("\nInvalid input.\n")
+        elif exec_option == 'y':
+            subprocess.call([dol_executable, '-e', md_path])
+            break
+        else:
+            subprocess.call([dol_executable, '--batch', md_path])
+            break
 
 
 def select_cmd():
@@ -697,7 +722,7 @@ def select_cmd():
     :return: User-specified command
     """
     help_dict = {'1': "Create LZ, GMA/TPL, "
-                      "replace stage files in <ISO path>//stage directory, rebuild ISO",
+                      "replace stage files in <ISO path>//stage directory, playtest game",
                  '2': "Create LZ, GMA/TPL, "
                       "replace stage files in <ISO path>//stage directory",
                  '3': "Create LZ, GMA/TPL",
@@ -705,9 +730,9 @@ def select_cmd():
                  '5': "Compress .lz.raw",
                  '6': "Create LZ",
                  '7': "Create GMA/TPL",
-                 '8': "Replace stage files in <ISO path>//stage directory, run GCR",
-                 '9': "Rebuild ISO",
-                 '10': "Playtest level"
+                 '8': "Replace stage files in <ISO path>//stage directory",
+                 '9': "Playtest game",
+                 '10': "Rebuild ISO"
                  }
 
     for h_key, h_value in help_dict.items():
@@ -737,8 +762,8 @@ if __name__ == '__main__':
 
         gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
         use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
-        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
-        rebuild_iso(paths.gcr, paths.iso)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
+        playtest(paths.dolphin, paths.playtest)
 
     elif cmd == '2':
         stage_name = stage_name(paths.levels)
@@ -749,7 +774,7 @@ if __name__ == '__main__':
 
         gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
         use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
-        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
 
     elif cmd == '3':
         stage_name = stage_name(paths.levels)
@@ -786,7 +811,10 @@ if __name__ == '__main__':
     elif cmd == '8':
         stage_name = stage_name(paths.levels)
         stage_number = stage_num()
-        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
 
     elif cmd == '9':
+        playtest(paths.dolphin, paths.playtest)
+
+    elif cmd == '10':
         rebuild_iso(paths.gcr, paths.iso)

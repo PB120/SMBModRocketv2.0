@@ -222,24 +222,6 @@ def modified():
         else:
             return 0
 
-# Test set 1
-
-# Test 1: config file does not exist (D)
-# Test 2: config file exists, date check file does not (D)
-# Test 3: Both files exist (D)
-    # a: date in date check file doesn't match actual mod date (D)
-    # b: date in date check file matches actual mod date (D)
-
-# Test set 2 using modified() when executing __main__
-
-# Test 1: config file does not exist (D)
-# Test 2: config file exists, date check file does not (D)
-# Test 3: Both files exist (D)
-    # a: date in date check file doesn't match actual mod date (D)
-    # b: date in date check file matches actual mod date (D)
-
-# Test set 2 using modified() when executing config_writer_temp.py in another python file
-
 
 def date_checker():
     """
