@@ -27,7 +27,10 @@ paths = cw.Paths(parser.get("Paths/directories", "levels"),
                  parser.get("Paths/directories", "gxmodelviewer"),
                  parser.get("Paths/directories", "gxmodelviewernogui"),
                  parser.get("Paths/directories", "iso"),
-                 parser.get("Paths/directories", "gcr")
+                 parser.get("Paths/directories", "root"),
+                 parser.get("Paths/directories", "gcr"),
+                 parser.get("Paths/directories", "playtest"),
+                 parser.get("Paths/directories", "Dolphin")
                  )
 
 
@@ -624,7 +627,7 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
             break
 
 
-def replace_stage_files(s_name, s_number, stages_dir, iso_dir):
+def replace_stage_files(s_name, s_number, stages_dir, root):
     """
     Copies stage files from //<stagename> folder to //stages folder in ISO
     if and only if all three stage files (STAGEXXX.lz, stXXX.gma, stXXX.gma) exist in //<stagename>.
@@ -632,12 +635,12 @@ def replace_stage_files(s_name, s_number, stages_dir, iso_dir):
     :param s_name: Stage name passed in from stage_name function
     :param s_number: Stage number passed in from stage_number function
     :param stages_dir: Directory of stage folders
-    :param iso_dir: Game disc file directory
+    :param root: ISO root folder path
     :return: None
     """
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
-    iso_stages_dir = os.path.expanduser(os.path.join(iso_dir, "root//stage"))
+    iso_stages_dir = os.path.expanduser(os.path.join(root, "stage"))
 
     src_lz = os.path.join(stage_dir, "STAGE{}.lz".format(s_number))
     src_gma = os.path.join(stage_dir, "st{}.gma".format(s_number))
@@ -673,7 +676,7 @@ def rebuild_iso(gcr_dir, iso_dir):
     """
     Run gcr.exe
 
-    Must type either"Y" or "y" to open GCR
+    Must type either "Y" or "y" to open GCR
     :param gcr_dir: Directory of gcr.exe file
     :param iso_dir: Directory of ISO disc file
     :return: None
@@ -683,7 +686,7 @@ def rebuild_iso(gcr_dir, iso_dir):
     iso_file = get_file(iso_dir, ".iso", override=True)
 
     iso_file_path = os.path.join(iso_dir, iso_file)
-    root_dir = os.path.join(iso_dir, "root")
+    root_dir = os.path.join(iso_dir, "files")
 
     print("\nRebuilding ISO...DO NOT STOP THIS PROGRAM\n")
     subprocess.call([gcr_executable, root_dir, iso_file_path])
@@ -736,7 +739,7 @@ if __name__ == '__main__':
 
         gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
         use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
-        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
         rebuild_iso(paths.gcr, paths.iso)
 
     elif cmd == '2':
@@ -748,7 +751,7 @@ if __name__ == '__main__':
 
         gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
         use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
-        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
 
     elif cmd == '3':
         stage_name = stage_name(paths.levels)
@@ -785,7 +788,7 @@ if __name__ == '__main__':
     elif cmd == '8':
         stage_name = stage_name(paths.levels)
         stage_number = stage_num()
-        replace_stage_files(stage_name, stage_number, paths.levels, paths.iso)
+        replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
 
     elif cmd == '9':
         rebuild_iso(paths.gcr, paths.iso)

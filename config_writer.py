@@ -13,7 +13,7 @@ edit_date_checker = "last_edited.txt"
 class Paths(object):
 
     def __init__(self, levels, ws2, ws2ify, bgtool, smb_fog_tool, smb_lz_tool, gmatool, gxmodelviewer,
-                 gxmodelviewernogui, iso, gcr):
+                 gxmodelviewernogui, iso, root, gcr, playtest, dolphin):
         self.levels = levels
         self.ws2 = ws2
         self.ws2ify = ws2ify
@@ -24,7 +24,10 @@ class Paths(object):
         self.gxmodelviewer = gxmodelviewer
         self.gxmodelviewernogui = gxmodelviewernogui
         self.iso = iso
+        self.root = root
         self.gcr = gcr
+        self.playtest = playtest
+        self.dolphin = dolphin
 
 
 def config_init():
@@ -46,8 +49,11 @@ def config_init():
                    "gmatool": ["gmatool.exe path: ", "gmatool.exe"],
                    "GXModelViewer": ["GXModelViewer path: ", "GXModelViewer.exe"],
                    "GxModelViewerNoGUI": ["GxModelViewerNoGUI path: ", "GXModelViewer.exe"],
-                   "ISO": ["<gamefilename>.iso path: ", ["root", ".iso"]],
-                   "GCR": ["gcr.exe path: ", "gcr.exe"]
+                   "ISO": ["<gamefilename>.iso path: ", ".iso"],
+                   "root": ["root path: ", "mkb2.main_loop.rel"],
+                   "GCR": ["gcr.exe path: ", "gcr.exe"],
+                   "playtest": ["main.dol path: ", "main.dol"],
+                   "Dolphin": ["Dolphin.exe path: ", "Dolphin.exe"]
                    }
 
     return config_dict

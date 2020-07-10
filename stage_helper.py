@@ -706,7 +706,8 @@ def select_cmd():
                  '6': "Create LZ",
                  '7': "Create GMA/TPL",
                  '8': "Replace stage files in <ISO path>//stage directory, run GCR",
-                 '9': "Rebuild ISO"
+                 '9': "Rebuild ISO",
+                 '10': "Playtest level"
                  }
 
     for h_key, h_value in help_dict.items():
