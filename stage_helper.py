@@ -129,16 +129,18 @@ def stage_name(stages_dir):
 
     print("\nLEVELS AVAILABLE:"
           "\n")
+
     stages_dir = os.path.expanduser(stages_dir)
     os.chdir(stages_dir)
     stage_lst = next(os.walk('.'))[1]
+    stage_lst_lc = [name.lower() for name in stage_lst]
     os.chdir(config_writer.tool_path)
 
     for name in stage_lst:
         print(name)
     while True:
         stg_nm = input("\nEnter stage name: ")
-        if stg_nm not in stage_lst:
+        if stg_nm.lower() not in stage_lst_lc:
             print("\nStage name not available! Try again.")
         else:
             break
@@ -627,6 +629,20 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
             break
 
 
+def edit_str(s_name, s_number, root):
+    """
+    Replaces stage name slot in usa.str
+    :return:
+    """
+    str_file = os.path.expanduser(os.path.join(root, "stgname", "usa.str"))
+    with open(str_file, 'r') as in_file:
+        stg_names = in_file.readlines()
+
+    stg_names[int(s_number)] = "{}\n".format(s_name)
+    with open(str_file, 'w') as out_file:
+        out_file.writelines(stg_names)
+
+
 def replace_stage_files(s_name, s_number, stages_dir, root):
     """
     Copies stage files from //<stagename> folder to //stages folder in ISO
@@ -763,6 +779,7 @@ if __name__ == '__main__':
         gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
         use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
         replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
+        edit_str(stage_name, stage_number, paths.root)
         playtest(paths.dolphin, paths.playtest)
 
     elif cmd == '2':
@@ -775,6 +792,7 @@ if __name__ == '__main__':
         gmatpl(stage_name, stage_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
         use_gmatool(stage_name, stage_number, paths.levels, paths.gmatool)
         replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
+        edit_str(stage_name, stage_number, paths.root)
 
     elif cmd == '3':
         stage_name = stage_name(paths.levels)
@@ -812,6 +830,7 @@ if __name__ == '__main__':
         stage_name = stage_name(paths.levels)
         stage_number = stage_num()
         replace_stage_files(stage_name, stage_number, paths.levels, paths.root)
+        edit_str(stage_name, stage_number, paths.root)
 
     elif cmd == '9':
         playtest(paths.dolphin, paths.playtest)
