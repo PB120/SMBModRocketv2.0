@@ -99,10 +99,10 @@ def stage_num():
     :return: Stage number for LZ/GMA/TPL (str)
     """
     first = 1
-    last = 420
+    last = 350
 
     while True:
-        s_num = input("Enter stage number (1-420). No input will yield default 001. ")
+        s_num = input("Enter stage number (1-350). No input will yield default 001. ")
         if s_num == "":
             s_num = "001"
             return s_num
@@ -110,7 +110,7 @@ def stage_num():
             try:
                 s_num = int(s_num)
             except ValueError:
-                print("Invalid stage number! Try again.")
+                print("\nInvalid stage number! Try again.")
             else:
                 if s_num < first or s_num > last:
                     print("Invalid stage number! Try again.")
@@ -632,8 +632,10 @@ def use_gmatool(s_name, s_number, stages_dir, gmatool_dir):
 def edit_str(s_name, s_number, root):
     """
     Replaces stage name slot in usa.str
-    :return:
+    :return: None
     """
+
+    s_name = re.sub('_', ' ', s_name)
     str_file = os.path.expanduser(os.path.join(root, "stgname", "usa.str"))
     with open(str_file, 'r') as in_file:
         stg_names = in_file.readlines()
@@ -704,7 +706,7 @@ def rebuild_iso(gcr_dir, iso_dir):
     iso_file_path = os.path.join(iso_dir, iso_file)
     root_dir = os.path.join(iso_dir, "files")
 
-    print("\nRebuilding ISO...DO NOT STOP THIS PROGRAM\n")
+    print("\nRebuilding ISO...\n")
     subprocess.call([gcr_executable, root_dir, iso_file_path])
     print("DONE!")
 
