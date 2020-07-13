@@ -1,6 +1,6 @@
 Created by Pintobean120
 
-Source: https://github.com/PB120/SMBModRocketv1.0
+Source: https://github.com/PB120/SMBModRocketv2.0
 
 Tutorial: https://www.youtube.com/watch?v=_9hoD28McoQ
 
