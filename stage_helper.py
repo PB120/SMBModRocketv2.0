@@ -9,6 +9,7 @@ import re
 import time
 import config_writer as cw
 import configparser
+import pdb
 
 config = configparser.ConfigParser()
 parser = configparser.ConfigParser()
@@ -334,6 +335,53 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
             break
         else:
             apply_bg_data(stage_dir, bgfiles_path)
+
+
+def fog_tool(s_name, s_number, stages_dir, fog_tool_dir):
+    """
+    Executes all functions in SMBFogTool
+    :return:
+    """
+
+    stages_dir = os.path.expanduser(stages_dir)
+    stage_dir = os.path.join(stages_dir, s_name)
+    raw_lz_file = "output.lz.raw"
+
+    def copy_fog_xml():
+        """
+        Executes SMBFogTool's copy-fog-xml-to-stage-def function
+        :return: None
+        """
+
+        lzraw = os.path.join(stage_dir, raw_lz_file)
+        if not os.path.isfile(lzraw):
+            print("\n{} not found. Quitting program...".format(lzraw))
+            sys.exit()
+        while True:
+            fog_path = input("\nEnter path to .fog.xml and .foganim.xml files including shared file name (ex:"
+                             " 'water' for water.fog.xml, water.foganim.xml): ")
+            if not os.path.isfile("{}.fog.xml".format(fog_path))\
+                    and not os.path.isfile("{}.foganim.xml".format(fog_path)):
+                print("\n{}.fog.xml and {}.foganim.xml not found.".format(fog_path, fog_path))
+
+            elif not os.path.isfile("{}.fog.xml".format(fog_path)):
+                print("\n{}.fog.xml not found.".format(fog_path))
+
+            elif not os.path.isfile("{}.foganim.xml".format(fog_path)):
+                print("\n{}.foganim.xml not found.".format(fog_path))
+
+            else:
+                break
+
+        fog_tool_executable = os.path.join(fog_tool_dir, "SMBFogTool.exe")
+        subprocess.call([fog_tool_executable, "-i", lzraw, "-c", fog_path])
+
+    print(copy_fog_xml())
+
+
+#stage_name = stage_name(paths.levels)
+#stage_number = stage_num()
+#fog_tool(stage_name, stage_number, paths.levels, paths.smb_fog_tool)
 
 
 def comp_lz(s_name, s_number, stages_dir, lz_tool_dir):
