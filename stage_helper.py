@@ -337,7 +337,7 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
             apply_bg_data(stage_dir, bgfiles_path)
 
 
-def fog_tool(s_name, s_number, stages_dir, fog_tool_dir):
+def fog_tool(s_name, stages_dir, fog_tool_dir):
     """
     Executes all functions in SMBFogTool
     :return:
@@ -346,6 +346,8 @@ def fog_tool(s_name, s_number, stages_dir, fog_tool_dir):
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     raw_lz_file = "output.lz.raw"
+    fog_tool_executable = os.path.join(fog_tool_dir, "SMBFogTool.exe")
+    lzraw = os.path.join(stage_dir, raw_lz_file)
 
     def copy_fog_xml():
         """
@@ -353,7 +355,6 @@ def fog_tool(s_name, s_number, stages_dir, fog_tool_dir):
         :return: None
         """
 
-        lzraw = os.path.join(stage_dir, raw_lz_file)
         if not os.path.isfile(lzraw):
             print("\n{} not found. Quitting program...".format(lzraw))
             sys.exit()
@@ -373,15 +374,39 @@ def fog_tool(s_name, s_number, stages_dir, fog_tool_dir):
             else:
                 break
 
-        fog_tool_executable = os.path.join(fog_tool_dir, "SMBFogTool.exe")
         subprocess.call([fog_tool_executable, "-i", lzraw, "-c", fog_path])
+        os.remove(lzraw)
+        os.rename("{}.out".format(lzraw), lzraw)
 
-    print(copy_fog_xml())
+    def copy_fog_sd():
+        """
+        Executes SMBFogTool's function that copies fog data from stage
+        def to another stage def
+        :return: None
+        """
+        pdb.set_trace()
+        if not os.path.isfile(os.path.join(stage_dir, raw_lz_file)):
+            print("Destination (output.lz.raw) not found in {}. Quitting program...".format(stage_dir))
+            sys.exit(1)
+
+        target_sd = os.path.join(stage_dir, raw_lz_file)
+        while True:
+            source_sd = input("\nEnter source .lz.raw path (the stage def that you want to copy fog data from): ")
+            if not os.path.isfile(source_sd):
+                print("\nSource .lz.raw not found.")
+            else:
+                break
+
+        subprocess.call([fog_tool_executable, "-i", source_sd, "-o", target_sd])
+        os.remove(lzraw)
+        os.rename("{}.out".format(lzraw), lzraw)
+
+    print(copy_fog_sd())
 
 
-#stage_name = stage_name(paths.levels)
-#stage_number = stage_num()
-#fog_tool(stage_name, stage_number, paths.levels, paths.smb_fog_tool)
+stage_name = stage_name(paths.levels)
+stage_number = stage_num()
+fog_tool(stage_name, paths.levels, paths.smb_fog_tool)
 
 
 def comp_lz(s_name, s_number, stages_dir, lz_tool_dir):
