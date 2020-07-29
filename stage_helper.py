@@ -9,7 +9,7 @@ import re
 import time
 import config_writer as cw
 import configparser
-import pdb
+from pdb import set_trace
 
 config = configparser.ConfigParser()
 parser = configparser.ConfigParser()
@@ -45,7 +45,6 @@ def get_file(path, extension, override=False):
     :return: File name if the number of files with specified extension >= 1.
     Else, returns None.
     """
-
     ext_lst = []
     for f_name in os.listdir(path):
         if f_name.endswith(extension):
@@ -384,7 +383,6 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
         def to another stage def
         :return: None
         """
-        pdb.set_trace()
         if not os.path.isfile(os.path.join(stage_dir, raw_lz_file)):
             print("Destination (output.lz.raw) not found in {}. Quitting program...".format(stage_dir))
             sys.exit(1)
@@ -401,7 +399,28 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
         os.remove(lzraw)
         os.rename("{}.out".format(lzraw), lzraw)
 
-    print(copy_fog_sd())
+    def stagedef_extract():
+        """
+        Executes SMBFogTool functionality - extract fog from stagedef
+        :return:
+        """
+        while True:
+            sd_dir = input("\nEnter stagedef directory: ")
+            if not os.path.isdir(sd_dir):
+                print("\nInvalid directory.")
+            else:
+                sd = get_file(sd_dir, ".raw")
+                if not sd:
+                    print("\nstagedef not found.")
+                else:
+                    sd_path = os.path.join(sd_dir, sd)
+                    break
+
+        subprocess.call([fog_tool_executable, "-i", sd_path])
+
+    # copy_fog_xml()
+    # copy_fog_sd()
+    # stagedef_extract()
 
 
 stage_name = stage_name(paths.levels)
