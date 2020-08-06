@@ -10,13 +10,11 @@ import time
 import config_writer as cw
 import configparser
 from pdb import set_trace
-
 config = configparser.ConfigParser()
 parser = configparser.ConfigParser()
 
 cw.exec_main_block()
 parser.read("config.ini")
-
 
 paths = cw.Paths(parser.get("Paths/directories", "levels"),
                  parser.get("Paths/directories", "ws2"),
@@ -399,7 +397,7 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
         os.remove(lzraw)
         os.rename("{}.out".format(lzraw), lzraw)
 
-    def stagedef_extract():
+    def sd_extract():
         """
         Executes SMBFogTool functionality - extract fog from stagedef
         :return:
@@ -418,9 +416,23 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
 
         subprocess.call([fog_tool_executable, "-i", sd_path])
 
-    # copy_fog_xml()
-    # copy_fog_sd()
-    # stagedef_extract()
+    while True:
+        sub_func = input("\n1 ---> Copy fog data from xml to stagedef\n"
+                         "2 ---> Copy fog data from source stagedef to destination stagedef\n"
+                         "3 ---> Extract fog data from stagedef to xml\n"
+                         "Enter command: ")
+
+        if sub_func != '1' and sub_func != '2' and sub_func != '3':
+            print("\nInvalid input.")
+            continue
+
+        elif sub_func == '1':
+            copy_fog_xml()
+        elif sub_func == '2':
+            copy_fog_sd()
+        elif sub_func == '3':
+            sd_extract()
+        break
 
 
 stage_name = stage_name(paths.levels)
