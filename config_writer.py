@@ -232,14 +232,12 @@ def date_checker():
         edc.write(str(datetime.fromtimestamp(os.stat(config_filename).st_mtime)))
 
 
-if __name__ == '__main__':
-
-    def exec_main_block():
-        """
-        Executes all functions above
-        :return: None
-        """
-
+def exec_main_block():
+    """
+    Executes all functions above
+    :return: None
+    """
+    if __name__ == '__main__':
         if modified() == -1:
             config["Paths/directories"] = setup_config()
             with open(config_filename, 'w') as config_file:
@@ -260,12 +258,7 @@ if __name__ == '__main__':
                     date_checker()
                     break
 
-    exec_main_block()
-
-else:
-
-    def exec_main_block():
-
+    else:
         if modified() == 1:
             while True:
                 user_choice = input("Config has been modified outside of program. Continue anyway? (Y/N) ").lower()
@@ -285,3 +278,7 @@ else:
             with open(config_filename, 'w') as config_file:
                 config.write(config_file)
                 date_checker()
+
+
+if __name__ == '__main__':
+    exec_main_block()
