@@ -78,6 +78,7 @@ def get_obj(xml_path):
     :param xml_path: xml path and file name
     :return: obj filename
     """
+    set_trace()
     file = xml_path
     tree = Et.parse(file)
     root = tree.getroot()
@@ -125,7 +126,7 @@ def stage_name(stages_dir):
     :return: Name of specified stage
     """
 
-    print("\nLEVELS AVAILABLE:"
+    print("\nAVAILABLE STAGES:"
           "\n")
 
     stages_dir = os.path.expanduser(stages_dir)
@@ -206,7 +207,6 @@ def apply_bg_data(stage_dir, bgfiles_path):
     :param bgfiles_path: bgfiles folder path
     :return: None
     """
-
     os.chdir(bgfiles_path)
     all_bg_themes = set([re.split('[^a-zA-Z0-9]', file)[0]
                          for file in os.listdir(bgfiles_path) if file != "bgtool.exe"])
@@ -228,8 +228,6 @@ def apply_bg_data(stage_dir, bgfiles_path):
     os.rename(src, dst)
 
     os.chdir(config_writer.tool_path)
-
-    sys.exit()
 
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir, return_xml=False):
@@ -292,7 +290,6 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
     :param stages_dir: Directory of stage folders
     :return: None
     """
-
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     xml_file = txt_to_xml(ws2ify_path, stage_dir)
@@ -325,13 +322,14 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
         subprocess.call(["lz_raw.bat", ws2_fe_dir, stages_dir, s_name, xml_file])
 
     while True:
-        user_choice = input("Apply vanilla BG? (Y/N) ")
+        user_choice = input("\nApply vanilla BG? (Y/N) ")
         if len(user_choice) == 0 or (user_choice.upper()[0] != "Y" and user_choice.upper()[0] != "N"):
             print("\nInvalid input.\n")
         elif user_choice.upper()[0] == "N":
             break
         else:
             apply_bg_data(stage_dir, bgfiles_path)
+            break
 
 
 def fog_tool(s_name, stages_dir, fog_tool_dir):
@@ -339,9 +337,19 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
     Executes all functions in SMBFogTool
     :return:
     """
-
+    set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
+    file_raw = get_file(stage_dir, ".raw", override=True)
+    file_lz = get_file(stage_dir, ".lz", override=True)
+    if not file_raw and not file_lz:
+        print("No .lz or .lz.raw available. Quitting program...")
+        sys.exit(1)
+    elif not file_raw:
+        if type(file_lz) == bool:
+            file_lz = get_file(stage_dir, ".lz", override=False)
+        subprocess.call([paths.smb_lz_tool, file_lz])
+
     raw_lz_file = "output.lz.raw"
     fog_tool_executable = os.path.join(fog_tool_dir, "SMBFogTool.exe")
     lzraw = os.path.join(stage_dir, raw_lz_file)
@@ -433,11 +441,6 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
         elif sub_func == '3':
             sd_extract()
         break
-
-
-stage_name = stage_name(paths.levels)
-stage_number = stage_num()
-fog_tool(stage_name, paths.levels, paths.smb_fog_tool)
 
 
 def comp_lz(s_name, s_number, stages_dir, lz_tool_dir):
@@ -826,7 +829,7 @@ def playtest(dol_executable, md_path):
     md_path = os.path.join(md_path, "main.dol")
 
     while True:
-        exec_option = input("Render game with GUI? (Y/N) ").lower()
+        exec_option = input("Render game with or without GUI? (Y for GUI, N for no GUI) ").lower()
         if exec_option != 'y' and exec_option != 'n':
             print("\nInvalid input.\n")
         elif exec_option == 'y':
@@ -848,7 +851,7 @@ def select_cmd():
                  '2': "Create LZ, GMA/TPL, "
                       "replace stage files in <ISO path>//stage directory",
                  '3': "Create LZ, GMA/TPL",
-                 '4': "Create .lz.raw",
+                 '4': "Create .lz.raw, use SMBFogTool",
                  '5': "Compress .lz.raw",
                  '6': "Create LZ",
                  '7': "Create GMA/TPL",
@@ -914,6 +917,7 @@ if __name__ == '__main__':
         stage_name = stage_name(paths.levels)
         stage_number = stage_num()
         stage_def(stage_name, paths.levels, paths.ws2ify, paths.ws2, paths.bgtool)
+        fog_tool(stage_name, paths.levels, paths.smb_fog_tool)
 
     elif cmd == '5':
         stage_name = stage_name(paths.levels)
