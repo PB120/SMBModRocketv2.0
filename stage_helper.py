@@ -11,7 +11,7 @@ import config_writer as cw
 import configparser
 from pdb import set_trace
 from tkinter import colorchooser as cc
-from tkinter import Button, Tk
+from tkinter import Tk
 
 config = configparser.ConfigParser()
 parser = configparser.ConfigParser()
@@ -436,7 +436,59 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
                      "type": fog_type,
                      "start": fog_start,
                      "end": fog_end}
-        print(fog_attrs)
+
+        f_tree = Et.parse(fog)
+        f_root = f_tree.getroot()
+        fa_tree = Et.parse(fog_anim)
+        fa_root = fa_tree.getroot()
+
+        # Modify .fog.xml
+        # 1. fogType
+        for ele in f_root.iter("fogType"):
+            ele.text = fog_type
+
+        # 2. fogStartDistance
+        for ele in f_root.iter("fogStartDistance"):
+            ele.text = fog_start
+
+        # 3. fogEndDistance
+        for ele in f_root.iter("fogEndDistance"):
+            ele.text = fog_end
+
+        # 4. color
+        for ele in f_root.iter("color"):
+            ele[0].text = fog_attrs["red"]
+            ele[1].text = fog_attrs["green"]
+            ele[2].text = fog_attrs["blue"]
+
+        # Modify .foganim.xml
+        # 1. startDistanceKeyframes
+        for ele in fa_root.iter("startDistanceKeyframes"):
+            ele[0][2].text = fog_attrs["start"]
+            ele[1][2].text = fog_attrs["start"]
+
+        # 2. endDistanceKeyframes
+        for ele in fa_root.iter("endDistanceKeyframes"):
+            ele[0][2].text = fog_attrs["end"]
+            ele[1][2].text = fog_attrs["end"]
+
+        # 3. redKeyframes
+        for ele in fa_root.iter("redKeyframes"):
+            ele[0][2].text = fog_attrs["red"]
+            ele[1][2].text = fog_attrs["red"]
+
+        # 4. greenKeyframes
+        for ele in fa_root.iter("greenKeyframes"):
+            ele[0][2].text = fog_attrs["green"]
+            ele[1][2].text = fog_attrs["green"]
+
+        # 5. blueKeyframes
+        for ele in fa_root.iter("blueKeyframes"):
+            ele[0][2].text = fog_attrs["blue"]
+            ele[1][2].text = fog_attrs["blue"]
+
+        f_tree.write(fog, xml_declaration=True)
+        fa_tree.write(fog_anim, xml_declaration=True)
 
     def copy_fog_xml():
         """
