@@ -10,6 +10,9 @@ import time
 import config_writer as cw
 import configparser
 from pdb import set_trace
+from tkinter import colorchooser as cc
+from tkinter import Button, Tk
+
 config = configparser.ConfigParser()
 parser = configparser.ConfigParser()
 
@@ -78,7 +81,6 @@ def get_obj(xml_path):
     :param xml_path: xml path and file name
     :return: obj filename
     """
-    set_trace()
     file = xml_path
     tree = Et.parse(file)
     root = tree.getroot()
@@ -332,12 +334,12 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
             break
 
 
-def fog_tool(s_name, stages_dir, fog_tool_dir):
+def fog_ops(s_name, stages_dir, fog_tool_dir):
     """
-    Executes all functions in SMBFogTool
+    Allows user to use all functions in SMBFogTool and edit color choice and fog boundaries in fog xmls
     :return:
     """
-    set_trace()
+    # set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     file_raw = get_file(stage_dir, ".raw", override=True)
@@ -353,6 +355,69 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
     raw_lz_file = "output.lz.raw"
     fog_tool_executable = os.path.join(fog_tool_dir, "SMBFogTool.exe")
     lzraw = os.path.join(stage_dir, raw_lz_file)
+
+    def edit_fog_xml():
+        """
+        Edit fog color choice, fog type, and fog boundaries in fog XMLs
+        :return: None
+        """
+        fog_types = {"NONE": "GX_FOG_NONE", "LIN": "GX_FOG_LIN",
+                     "EXP": "GX_FOG_EXP", "EXP2": "GX_FOG_EXP2",
+                     "REXP": "GX_FOG_REVEXP", "REXP2": "GX_FOG_REVEXP2"}
+
+        def color():
+            """
+
+            :return: Tuple with user-selected RGB fractions
+            """
+            root = Tk()
+            output_color = []
+            while True:
+                my_color = cc.askcolor()[0]
+                if not my_color:
+                    print("Error: no color selected.")
+                else:
+                    break
+            for rgb_value in my_color:
+                if rgb_value > 255:
+                    rgb_value = 255
+                output_color.append(rgb_value / 255)
+            output_color = tuple(output_color)
+            root.destroy()
+            return output_color
+
+        # Select fog RGB
+        fog_color = color()
+
+        # Select fog type
+        while True:
+            print("\nFog types: {}".format(", ".join(list(fog_types.keys()))))
+            fog_select = input("\nSelect fog type: ").upper()
+            if fog_select not in fog_types.keys():
+                print("Fog type not found.")
+            else:
+                fog_type = fog_types[fog_select]
+                break
+        # Select fog start distance
+        while True:
+            fog_start = input("Fog start distance: ")
+            try:
+                float(fog_start)
+            except ValueError:
+                print("Invalid input.")
+            else:
+                break
+        # Select fog end distance
+        while True:
+            fog_end = input("Fog end distance: ")
+            try:
+                float(fog_end)
+            except ValueError:
+                print("Invalid input.")
+            else:
+                break
+
+        fog_attrs = {"rgb": fog_color, "type": fog_type, "start": fog_start, "end": fog_end}
 
     def copy_fog_xml():
         """
@@ -425,20 +490,23 @@ def fog_tool(s_name, stages_dir, fog_tool_dir):
         subprocess.call([fog_tool_executable, "-i", sd_path])
 
     while True:
-        sub_func = input("\n1 ---> Copy fog data from xml to stagedef\n"
-                         "2 ---> Copy fog data from source stagedef to destination stagedef\n"
-                         "3 ---> Extract fog data from stagedef to xml\n"
+        sub_func = input("\n1 ---> Edit fog xml (color, fog boundaries)\n"
+                         "2 ---> Copy fog data from xml to stagedef\n"
+                         "3 ---> Copy fog data from source stagedef to destination stagedef\n"
+                         "4 ---> Extract fog data from stagedef to xml\n"
                          "Enter command: ")
 
-        if sub_func != '1' and sub_func != '2' and sub_func != '3':
+        if sub_func != '1' and sub_func != '2' and sub_func != '3' and sub_func != '4':
             print("\nInvalid input.")
             continue
 
         elif sub_func == '1':
-            copy_fog_xml()
+            edit_fog_xml()
         elif sub_func == '2':
-            copy_fog_sd()
+            copy_fog_xml()
         elif sub_func == '3':
+            copy_fog_sd()
+        elif sub_func == '4':
             sd_extract()
         break
 
@@ -829,7 +897,7 @@ def playtest(dol_executable, md_path):
     md_path = os.path.join(md_path, "main.dol")
 
     while True:
-        exec_option = input("Render game with or without GUI? (Y for GUI, N for no GUI) ").lower()
+        exec_option = input("Render game in Dolphin with or without GUI? (Y -> GUI, N -> No GUI) ").lower()
         if exec_option != 'y' and exec_option != 'n':
             print("\nInvalid input.\n")
         elif exec_option == 'y':
@@ -917,7 +985,7 @@ if __name__ == '__main__':
         stage_name = stage_name(paths.levels)
         stage_number = stage_num()
         stage_def(stage_name, paths.levels, paths.ws2ify, paths.ws2, paths.bgtool)
-        fog_tool(stage_name, paths.levels, paths.smb_fog_tool)
+        fog_ops(stage_name, paths.levels, paths.smb_fog_tool)
 
     elif cmd == '5':
         stage_name = stage_name(paths.levels)
