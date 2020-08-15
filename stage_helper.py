@@ -315,7 +315,7 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
             elif overwrite_input.lower()[0] != 'y' and overwrite_input.lower()[0] != 'n':
                 print("Input not recognized! Try again.")
             elif overwrite_input.lower()[0] == 'n':
-                sys.exit(0)
+                break
             else:
                 subprocess.call(["lz_raw.bat", ws2_fe_dir, stages_dir, s_name, xml_file])
                 break
@@ -339,7 +339,6 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
     Allows user to use all functions in SMBFogTool and edit color choice and fog boundaries in fog xmls
     :return:
     """
-    # set_trace()
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     file_raw = get_file(stage_dir, ".raw", override=True)
@@ -365,6 +364,21 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
                      "EXP": "GX_FOG_EXP", "EXP2": "GX_FOG_EXP2",
                      "REXP": "GX_FOG_REVEXP", "REXP2": "GX_FOG_REVEXP2"}
 
+        while True:
+            source_xml = input("Enter source xml directory and shared file name (ex: \"water\" for water.fog.xml "
+                               "and water.foganim.xml): ")
+            fog = "{}.fog.xml".format(source_xml)
+            fog_anim = "{}.foganim.xml".format(source_xml)
+            if not os.path.isfile(fog) and not os.path.isfile(fog_anim):
+                print("\n{} not found.".format(fog))
+                print("{} not found.".format(fog_anim))
+            elif not os.path.isfile(fog):
+                print("\n{} not found.".format(fog))
+            elif not os.path.isfile(fog_anim):
+                print("\n{} not found.".format(fog_anim))
+            else:
+                break
+
         def color():
             """
 
@@ -372,6 +386,7 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
             """
             root = Tk()
             output_color = []
+            print("\nSelect fog color from GUI")
             while True:
                 my_color = cc.askcolor()[0]
                 if not my_color:
@@ -381,7 +396,7 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
             for rgb_value in my_color:
                 if rgb_value > 255:
                     rgb_value = 255
-                output_color.append(rgb_value / 255)
+                output_color.append(str(rgb_value / 255))
             output_color = tuple(output_color)
             root.destroy()
             return output_color
@@ -417,7 +432,11 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
             else:
                 break
 
-        fog_attrs = {"rgb": fog_color, "type": fog_type, "start": fog_start, "end": fog_end}
+        fog_attrs = {"red": fog_color[0], "green": fog_color[1], "blue": fog_color[2],
+                     "type": fog_type,
+                     "start": fog_start,
+                     "end": fog_end}
+        print(fog_attrs)
 
     def copy_fog_xml():
         """
@@ -490,7 +509,7 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
         subprocess.call([fog_tool_executable, "-i", sd_path])
 
     while True:
-        sub_func = input("\n1 ---> Edit fog xml (color, fog boundaries)\n"
+        sub_func = input("\n1 ---> Edit fog xml (color, type, boundaries)\n"
                          "2 ---> Copy fog data from xml to stagedef\n"
                          "3 ---> Copy fog data from source stagedef to destination stagedef\n"
                          "4 ---> Extract fog data from stagedef to xml\n"
