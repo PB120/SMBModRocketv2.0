@@ -46,10 +46,15 @@ def get_file(path, extension, override=False):
     :return: File name if the number of files with specified extension >= 1.
     Else, returns None.
     """
+
+    num_lst = []
     ext_lst = []
+    ext_count = -1
     for f_name in os.listdir(path):
         if f_name.endswith(extension):
+            ext_count += 1
             ext_lst.append(f_name)
+            num_lst.append(ext_count)
 
     if len(ext_lst) == 0:
         return ext_lst
@@ -65,13 +70,20 @@ def get_file(path, extension, override=False):
         else:
             while True:
                 files = [file for file in ext_lst]
-                file_choice = input("\nMore than one {} file exists in {}.\n"
-                                    "Files available: {}\n"
-                                    "Please input the file name that you want. ".format(extension, path, files))
-                if file_choice in ext_lst:
-                    return file_choice
+                files_zip = list(zip(num_lst, files))
+                print("\nMultiple {} files available\n".format(extension))
+                for ele in files_zip:
+                    print("{} ---> {}".format(ele[0], ele[1]))
+                try:
+                    file_num = int(input("\nChoose number corresponding to .xml file: ".format(extension)))
+                except ValueError:
+                    print("Invalid input.")
                 else:
-                    print("File does not exist.")
+                    file_num = int(file_num)
+                    if file_num in num_lst:
+                        return files_zip[file_num][1]
+                    else:
+                        print("Number not available.")
 
 
 def get_obj(xml_path):
