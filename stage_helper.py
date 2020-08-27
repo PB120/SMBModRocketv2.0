@@ -146,19 +146,25 @@ def stage_name(stages_dir):
     stages_dir = os.path.expanduser(stages_dir)
     os.chdir(stages_dir)
     stage_lst = next(os.walk('.'))[1]
-    stage_lst_lc = [name.lower() for name in stage_lst]
+    stage_lst_up = [name.upper() for name in stage_lst]
+    num_lst = [str(num) for num in range(len(stage_lst_up))]
+    zipped_list = list(zip(num_lst, stage_lst_up))
+
     os.chdir(config_writer.tool_path)
 
-    for name in stage_lst:
-        print(name)
+    for stage in zipped_list:
+        print("{} ---> {}".format(stage[0], stage[1]))
+    set_trace()
     while True:
-        stg_nm = input("\nEnter stage name: ")
-        if stg_nm.lower() not in stage_lst_lc:
-            print("\nStage name not available! Try again.")
+        stg_input = input("\nEnter stage name or number associated with stage name: ")
+        if stg_input.upper() not in stage_lst_up and stg_input not in num_lst:
+            print("\nStage name not found.")
+        elif stg_input in num_lst:
+            return stage_lst_up[int(stg_input)]
         else:
-            break
+            return stg_input
 
-    return stg_nm
+    return stg_input
 
 
 def txt_to_xml(ws2ify_path, stage_dir):
