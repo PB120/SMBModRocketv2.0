@@ -90,7 +90,7 @@ def cl():
     return args_dict
 
 
-print(cl())
+cl_dict = cl()
 
 
 def get_file(path, extension, override=False):
@@ -1088,83 +1088,114 @@ def select_cmd():
 
 if __name__ == '__main__':
 
-    #cmd = select_cmd()
-    #set_trace()
-    for arg in sys.argv[1:]:
-        if arg == '1':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
+    stage_dir = cl_dict["stage_dir"]
+    stage_index = cl_dict["index"]
 
-            x = stage_def_to_lz(stg_name, stg_number, paths.levels,
-                                paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
+    # if type(stage_dir) == str and type(stage_index) == int:
+    #     if function requires stage_dir and stage_index:
+    #         execute function
+    #     elif function doesn't require stage_dir and/or stage_index:
+    #         still execute function
+    #
+    # elif type(stage_dir) == str (as in type(stage_index) == None):
+    #     if function requires stage_dir and stage_index:
+    #         produce error message, quit program
+    #     elif function requires stage_index:
+    #         produce error message, quit program
+    #     elif function requires stage_dir:
+    #         execute function
+    #     elif function doesn't require neither stage_dir nor stage_index:
+    #         execute function
+    #
+    # elif stage_index == int (as in type(stage_dir) == None):
+    #     if function requires stage_dir and stage_index:
+    #         produce error message, quit program
+    #     elif function requires stage_dir:
+    #         produce error message, quit program
+    #     elif function requires stage_index:
+    #         execute function
+    #     elif function doesn't require neither stage_dir nor stage_index:
+    #         execute function
+    #
+    # else (as in type(stage_dir) == None, type(stage_index) == None):
+    #     execute function
 
-            gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
-            use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
-            replace_stage_files(stg_name, stg_number, paths.levels, paths.root)
-            edit_str(stg_name, stg_number, paths.root)
-            playtest(paths.dolphin, paths.playtest)
-            del stg_name, stg_number, x
+    """
+    if arg == '1':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
 
-        elif arg == '2':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
+        x = stage_def_to_lz(stg_name, stg_number, paths.levels,
+                            paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
 
-            x = stage_def_to_lz(stg_name, stg_number, paths.levels,
-                                paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
+        gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
+        use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
+        replace_stage_files(stg_name, stg_number, paths.levels, paths.root)
+        edit_str(stg_name, stg_number, paths.root)
+        playtest(paths.dolphin, paths.playtest)
+        del stg_name, stg_number, x
 
-            gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
-            use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
-            replace_stage_files(stg_name, stg_number, paths.levels, paths.root)
-            edit_str(stg_name, stg_number, paths.root)
-            del stg_name, stg_number, x
+    elif arg == '2':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
 
-        elif arg == '3':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
+        x = stage_def_to_lz(stg_name, stg_number, paths.levels,
+                            paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
 
-            x = stage_def_to_lz(stg_name, stg_number, paths.levels,
-                                paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
+        gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
+        use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
+        replace_stage_files(stg_name, stg_number, paths.levels, paths.root)
+        edit_str(stg_name, stg_number, paths.root)
+        del stg_name, stg_number, x
 
-            gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
-            use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
-            del stg_name, stg_number, x
+    elif arg == '3':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
 
-        elif arg == '4':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
-            stage_def(stg_name, paths.levels, paths.ws2ify, paths.ws2, paths.bgtool)
-            fog_ops(stg_name, paths.levels, paths.smb_fog_tool)
-            del stg_name, stg_number
+        x = stage_def_to_lz(stg_name, stg_number, paths.levels,
+                            paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
 
-        elif arg == '5':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
-            comp_lz(stg_name, stg_number, paths.levels, paths.smb_lz_tool)
-            del stg_name, stg_number
+        gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui, in_xml=x)
+        use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
+        del stg_name, stg_number, x
 
-        elif arg == '6':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
-            stage_def_to_lz(stg_name, stg_number, paths.levels,
-                            paths.ws2ify, paths.ws2, paths.smb_lz_tool)
-            del stg_name, stg_number
+    elif arg == '4':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
+        stage_def(stg_name, paths.levels, paths.ws2ify, paths.ws2, paths.bgtool)
+        fog_ops(stg_name, paths.levels, paths.smb_fog_tool)
+        del stg_name, stg_number
 
-        elif arg == '7':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
-            gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui)
-            use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
-            del stg_name, stg_number
+    elif arg == '5':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
+        comp_lz(stg_name, stg_number, paths.levels, paths.smb_lz_tool)
+        del stg_name, stg_number
 
-        elif arg == '8':
-            stg_name = stage_name(paths.levels)
-            stg_number = stage_num()
-            replace_stage_files(stg_name, stg_number, paths.levels, paths.root)
-            edit_str(stg_name, stg_number, paths.root)
-            del stg_name, stg_number
+    elif arg == '6':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
+        stage_def_to_lz(stg_name, stg_number, paths.levels,
+                        paths.ws2ify, paths.ws2, paths.smb_lz_tool)
+        del stg_name, stg_number
 
-        elif arg == '9':
-            playtest(paths.dolphin, paths.playtest)
+    elif arg == '7':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
+        gmatpl(stg_name, stg_number, paths.levels, paths.gxmodelviewer, paths.gxmodelviewernogui)
+        use_gmatool(stg_name, stg_number, paths.levels, paths.gmatool)
+        del stg_name, stg_number
 
-        elif arg == '10':
-            rebuild_iso(paths.gcr, paths.iso)
+    elif arg == '8':
+        stg_name = stage_name(paths.levels)
+        stg_number = stage_num()
+        replace_stage_files(stg_name, stg_number, paths.levels, paths.root)
+        edit_str(stg_name, stg_number, paths.root)
+        del stg_name, stg_number
+
+    elif arg == '9':
+        playtest(paths.dolphin, paths.playtest)
+
+    elif arg == '10':
+        rebuild_iso(paths.gcr, paths.iso)
+    """
