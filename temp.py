@@ -41,19 +41,24 @@ paths = cw.Paths(parser.get("Paths/directories", "levels"),
 def cl():
     """
     Command line interface for SMBModRocket functions
-    :return: dictionary - {command line flag: value}
+    :return: dictionary - {command line flag 1: value, command line flag 2: value, etc}
     """
     cl_parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
                                         description="SMBModRocket is a tool to automate production "
                                                     "of SMB stage files and usage of "
-                                                    "other modding software built by the SMB community.\n\n"
-                                                    "** Commands that require a stage directory and/or stage index "
-                                                    "are marked with an \'S\' **"
+                                                    "other software built by the SMB modding community.\n\n"
+                                                    "- commands that require a stage directory "
+                                                    "are marked with an \'S\'\n"
+                                                    "- commands that require a stage index "
+                                                    "are marked with a \'#\'\n"
+                                                    "- commands that require both a stage directory and stage index "
+                                                    "are marked with an \'S#\'"
                                                     "\n "
                                         )
 
     cl_parser.add_argument('-stage_dir', type=str, help='Stage XML and OBJ directory')
-    cl_parser.add_argument('-index', type=int, help='Stage index (any number between 1-350)')
+    cl_parser.add_argument('-index', type=int, metavar="[any number from 1 to 350]",
+                           help='Stage index (any number between 1-350)')
     cl_parser.add_argument('-0S', action='store_true', help='Build stage def')
     cl_parser.add_argument('-1S', action='store_true', help='Compress existing stage def into LZ')
     cl_parser.add_argument('-2S', action='store_true', help='Build stage def and compress into LZ')
@@ -70,6 +75,10 @@ def cl():
     cl_parser.add_argument('-10', action='store_true', help='Rebuild ISO')
 
     args = cl_parser.parse_args()
+    if args.index or args.index == 0:
+        if args.index < 1 or args.index > 350:
+            cl_parser.error("argument -index: index outside of range (1-350)")
+
     args_str = str(args)
     args_str = str(args)[args_str.find('(') + 1: args_str.find(')', -1)]
     x = args_str.split(", **")[0].split(" ")
@@ -162,31 +171,18 @@ def get_obj(xml_path):
     return obj
 
 
-def stage_num():
+def stage_num(cl_arg=cl_dict["index"]):
     """
     Prompts user for stage number and converts it to a 3-digit string
-
+    :param cl_arg: stage number from command line argument
     :return: Stage number for LZ/GMA/TPL (str)
     """
-    first = 1
-    last = 350
 
-    while True:
-        s_num = input("Enter stage number (1-350). No input will yield default 001. ")
-        if s_num == "":
-            s_num = "001"
-            return s_num
-        else:
-            try:
-                s_num = int(s_num)
-            except ValueError:
-                print("\nInvalid stage number! Try again.")
-            else:
-                if s_num < first or s_num > last:
-                    print("Invalid stage number! Try again.")
-                else:
-                    s_num = "{:03d}".format(s_num)
-                    return s_num
+    if type(cl_arg) is None:
+        pass
+    else:
+        s_num = "{:03d}".format(cl_arg)
+        return s_num
 
 
 def stage_name(stages_dir):
@@ -1088,37 +1084,47 @@ def select_cmd():
 
 if __name__ == '__main__':
 
-    stage_dir = cl_dict["stage_dir"]
-    stage_index = cl_dict["index"]
-
-    # if type(stage_dir) == str and type(stage_index) == int:
-    #     if function requires stage_dir and stage_index:
+    s_dir = cl_dict["stage_dir"]
+    s_index = cl_dict["index"]
+    stg_name = stage_name(paths.levels)  # these two lines are temporary to keep python file from crashing
+    stg_number = stage_num()
+    # if type(s_dir) == str and type(s_index) == int:
+    #     if function requires s_dir and s_index:
     #         execute function
-    #     elif function doesn't require stage_dir and/or stage_index:
+    #     elif function doesn't require s_dir and/or s_index:
     #         still execute function
-    #
-    # elif type(stage_dir) == str (as in type(stage_index) == None):
-    #     if function requires stage_dir and stage_index:
+
+    ### stage_def_to_lz()
+    """
+    if type(s_dir) == str and type(s_index) == int:
+        if s_dir
+        stage_def_to_lz(stg_name, stg_number, paths.levels,
+                        paths.ws2ify, paths.ws2, paths.smb_lz_tool, return_xml=True)
+    """
+
+    # elif type(s_dir) == str (as in type(s_index) == None):
+    #     if function requires s_dir and s_index:
     #         produce error message, quit program
-    #     elif function requires stage_index:
+    #     elif function requires s_index:
     #         produce error message, quit program
-    #     elif function requires stage_dir:
+    #     elif function requires s_dir:
     #         execute function
-    #     elif function doesn't require neither stage_dir nor stage_index:
-    #         execute function
-    #
-    # elif stage_index == int (as in type(stage_dir) == None):
-    #     if function requires stage_dir and stage_index:
-    #         produce error message, quit program
-    #     elif function requires stage_dir:
-    #         produce error message, quit program
-    #     elif function requires stage_index:
-    #         execute function
-    #     elif function doesn't require neither stage_dir nor stage_index:
+    #     elif function doesn't require neither s_dir nor s_index:
     #         execute function
     #
-    # else (as in type(stage_dir) == None, type(stage_index) == None):
+    # elif s_index == int (as in type(s_dir) == None):
+    #     if function requires s_dir and s_index:
+    #         produce error message, quit program
+    #     elif function requires s_dir:
+    #         produce error message, quit program
+    #     elif function requires s_index:
+    #         execute function
+    #     elif function doesn't require neither s_dir nor s_index:
+    #         execute function
+    #
+    # else (as in type(s_dir) == None, type(s_index) == None):
     #     execute function
+
 
     """
     if arg == '1':
