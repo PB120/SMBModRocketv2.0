@@ -1,6 +1,8 @@
 """Automates creation, renaming and moving of SMB stage files"""
-import subprocess
+import argparse
+import ast
 import sys
+import subprocess
 import os
 import shutil
 import xml.etree.ElementTree as Et
@@ -34,6 +36,61 @@ paths = cw.Paths(parser.get("Paths/directories", "levels"),
                  parser.get("Paths/directories", "playtest"),
                  parser.get("Paths/directories", "Dolphin")
                  )
+
+
+def cl():
+    """
+    Command line interface for SMBModRocket functions
+    :return: dictionary - {command line flag: value}
+    """
+    cl_parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter,
+                                        description="SMBModRocket is a tool to automate production "
+                                                    "of SMB stage files and usage of "
+                                                    "other modding software built by the SMB community.\n\n"
+                                                    "** Commands that require a stage directory and/or stage index "
+                                                    "are marked with an \'S\' **"
+                                                    "\n "
+                                        )
+
+    cl_parser.add_argument('-stage_dir', type=str, help='Stage XML and OBJ directory')
+    cl_parser.add_argument('-index', type=int, help='Stage index (any number between 1-350)')
+    cl_parser.add_argument('-0S', action='store_true', help='Build stage def')
+    cl_parser.add_argument('-1S', action='store_true', help='Compress existing stage def into LZ')
+    cl_parser.add_argument('-2S', action='store_true', help='Build stage def and compress into LZ')
+    cl_parser.add_argument('-3S', action='store_true', help='Apply bg data to existing stage def')
+    cl_parser.add_argument('-4aS', action='store_true', help='Edit data in existing .fog.xml and .foganim.xml')
+    cl_parser.add_argument('-4bS', action='store_true', help='Copy fog data from existing xmls to stage def')
+    cl_parser.add_argument('-4cS', action='store_true', help='Copy data from source stage def to destination stage def')
+    cl_parser.add_argument('-4dS', action='store_true', help='Extract fog xmls from stage def')
+    cl_parser.add_argument('-5S', action='store_true', help='Build stage GMA/TPL')
+    cl_parser.add_argument('-6S', action='store_true', help='Merge GMA/TPLs')
+    cl_parser.add_argument('-7S', action='store_true', help='Edit stage slot in usa.str file')
+    cl_parser.add_argument('-8S', action='store_true', help='Move stage files to ISO stage folder')
+    cl_parser.add_argument('-9', action='store_true', help='Playtest game')
+    cl_parser.add_argument('-10', action='store_true', help='Rebuild ISO')
+
+    args = cl_parser.parse_args()
+    args_str = str(args)
+    args_str = str(args)[args_str.find('(') + 1: args_str.find(')', -1)]
+    x = args_str.split(", **")[0].split(" ")
+    x = "".join(x).split(",")
+    s_args = {}  # -stage_dir and -index flags and values
+    for arg in x:
+        s_args[arg[:arg.find("=")]] = ast.literal_eval(arg[arg.find("=") + 1:])
+
+    other_args = args_str.split(", **")[1]
+    other_args = ast.literal_eval(other_args)  # all other flags and values
+    s_args.update(other_args)
+    args_dict = s_args
+
+    if len(sys.argv) < 2:
+        cl_parser.print_help()
+        sys.exit(1)
+
+    return args_dict
+
+
+print(cl())
 
 
 def get_file(path, extension, override=False):
