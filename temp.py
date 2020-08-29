@@ -270,34 +270,41 @@ def txt_to_xml(ws2ify_path, stage_dir):
         return xml
 
 
-def apply_bg_data(stage_dir, bgfiles_path):
+def apply_bg_data(bgfiles_path, cl_arg1=cl_dict["stage_dir"], cl_arg2=cl_dict["3S"]):
     """
 
     :param stage_dir: directory of stage folder
     :param bgfiles_path: bgfiles folder path
-    :return: None
+    :param cl_arg1: stage directory from cl
+    :param cl_arg2: apply bg data bool from cl
+    :return:
     """
-    os.chdir(bgfiles_path)
-    all_bg_themes = set([re.split('[^a-zA-Z0-9]', file)[0]
-                         for file in os.listdir(bgfiles_path) if file != "bgtool.exe"])
 
-    [print(theme) for theme in all_bg_themes]
-    while True:
-        bg_choice = input("\nSelect bg: ")
-        if bg_choice not in all_bg_themes:
-            print("Bg not found.")
-        else:
-            break
+    if not cl_arg2:
+        pass
+    else:
+        stage_dir = cl_arg1
+        os.chdir(bgfiles_path)
+        all_bg_themes = set([re.split('[^a-zA-Z0-9]', file)[0]
+                             for file in os.listdir(bgfiles_path) if file != "bgtool.exe"])
 
-    subprocess.call(["bgtool.exe", "{}\\output.lz.raw".format(stage_dir), "-r", bg_choice])
+        [print(theme) for theme in all_bg_themes]
+        while True:
+            bg_choice = input("\nSelect bg: ")
+            if bg_choice not in all_bg_themes:
+                print("Bg not found.")
+            else:
+                break
 
-    src = os.path.join(stage_dir, "output.lz.raw_newbg")
-    dst = os.path.join(stage_dir, "output.lz.raw")
-    if os.path.isfile(dst):
-        os.remove(dst)
-    os.rename(src, dst)
+        subprocess.call(["bgtool.exe", "{}\\output.lz.raw".format(stage_dir), "-r", bg_choice])
 
-    os.chdir(config_writer.tool_path)
+        src = os.path.join(stage_dir, "output.lz.raw_newbg")
+        dst = os.path.join(stage_dir, "output.lz.raw")
+        if os.path.isfile(dst):
+            os.remove(dst)
+        os.rename(src, dst)
+
+        os.chdir(config_writer.tool_path)
 
 
 def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_tool_dir, return_xml=False):
@@ -347,7 +354,7 @@ def stage_def_to_lz(s_name, s_number, stages_dir, ws2ify_path, ws2_fe_dir, lz_to
         return xml_file
 
 
-def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
+def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path, cl_arg=cl_dict["stage_dir"]):
     """
     Run lz_raw.bat file with the following command line arguments (in order):
         (1) ws2lzfrontend.exe directory, (2) stages directory,
@@ -357,11 +364,16 @@ def stage_def(s_name, stages_dir, ws2ify_path, ws2_fe_dir, bgfiles_path):
     :param ws2ify_path: Path to ws2ify run.py file
     :param ws2_fe_dir: Directory containing ws2lzfrontend.exe file
     :param bgfiles_path: bgtool path
+    :param cl_arg: stage dir from command line argument
     :param stages_dir: Directory of stage folders
     :return: None
     """
-    stages_dir = os.path.expanduser(stages_dir)
-    stage_dir = os.path.join(stages_dir, s_name)
+
+    if cl_arg:
+        stage_dir = cl_arg
+    else:
+        stages_dir = os.path.expanduser(stages_dir)
+        stage_dir = os.path.join(stages_dir, s_name)
     xml_file = txt_to_xml(ws2ify_path, stage_dir)
 
     if not xml_file:
