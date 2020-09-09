@@ -154,7 +154,6 @@ def stage_name(stages_dir):
 
     for stage in zipped_list:
         print("{} ---> {}".format(stage[0], stage[1]))
-    set_trace()
     while True:
         stg_input = input("\nEnter stage name or number associated with stage name: ")
         if stg_input.upper() not in stage_lst_up and stg_input not in num_lst:
@@ -163,8 +162,6 @@ def stage_name(stages_dir):
             return stage_lst_up[int(stg_input)]
         else:
             return stg_input
-
-    return stg_input
 
 
 def txt_to_xml(ws2ify_path, stage_dir):
@@ -357,6 +354,16 @@ def fog_ops(s_name, stages_dir, fog_tool_dir):
     Allows user to use all functions in SMBFogTool and edit color choice and fog boundaries in fog xmls
     :return:
     """
+
+    while True:
+        user_choice = input("\nDo stuff with fog? (Y/N) ")
+        if len(user_choice) == 0 or (user_choice.upper()[0] != "Y" and user_choice.upper()[0] != "N"):
+            print("\nInvalid input.")
+        elif user_choice.upper()[0] == "N":
+            return None
+        else:
+            break
+
     stages_dir = os.path.expanduser(stages_dir)
     stage_dir = os.path.join(stages_dir, s_name)
     file_raw = get_file(stage_dir, ".raw", override=True)
