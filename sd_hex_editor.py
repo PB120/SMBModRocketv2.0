@@ -1,27 +1,25 @@
 # import pdb
 import binascii
 
-"""
-00000000: Null
-00000001: Casts a shadow
-00000002: Receives a shadow
-00000003: Casts AND receives a shadow
-00000004: ?
-00000005: ? + Casts a shadow
-00000006: ? + Receives a shadow
-00000007: ? + Casts AND receives a shadow
-00000008: Transparency Type A
-00000009: Transparency Type A + Casts a shadow
-0000000A: Transparency Type A + Receives a shadow
-0000000B: Transparency Type A + Casts AND receives a shadow
-0000000C: Transparency Type A + ?
-0000000D: Transparency Type A + ? + Casts a shadow
-0000000E: Transparency Type A + ? + Receives a shadow
-0000000F: Transparency Type A + ? + Casts AND receives a shadow
-00000010: Transparency Type B
-00000011: Transparency Type B +
-
-"""
+bf_dict = {"0": ("Null", "00000000"),
+           "1": ("Casts a shadow", "00000001"),
+           "2": ("Receives a shadow", "00000002"),
+           "3": ("Casts AND receives a shadow", "00000003"),
+           "4": ("?", "00000004"),
+           "5": ("? + Casts a shadow", "00000005"),
+           "6": ("? + Receives a shadow", "00000006"),
+           "7": ("? + Casts AND receives a shadow", "00000007"),
+           "8": ("Transparency Type A", "00000008"),
+           "9": ("Transparency Type A + Casts a shadow", "00000009"),
+           "10": ("Transparency Type A + Receives a shadow", "0000000A"),
+           "11": ("Transparency Type A + Casts AND receives a shadow", "0000000B"),
+           "12": ("Transparency Type A + ?", "0000000C"),
+           "13": ("Transparency Type A + ? + Casts a shadow", "0000000D"),
+           "14": ("Transparency Type A + ? + Receives a shadow", "0000000E"),
+           "15": ("Transparency Type A + ? + Casts AND receives a shadow", "0000000F"),
+           "16": ("Transparency Type B", "00000010"),
+           "17": ("Transparency Type B + ?", "00000011")
+           }
 
 models_offset = int(input("Input model offset: ")) * 24
 
